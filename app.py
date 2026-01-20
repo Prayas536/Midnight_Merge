@@ -2,23 +2,23 @@ import os
 import pandas as pd
 import joblib
 import streamlit as st
-# from openai import OpenAI  # Removed as we're using Grok
-import requests  # Added for Grok API calls
+# import google.generativeai as genai  # Removed as we're using SambaNova
+import requests  # Added for SambaNova API calls
 from dotenv import load_dotenv
 
 # 1. Load environment variables from .env file
-load_dotenv("gemini.env")  # You may want to rename this file to something like .env for Grok
+load_dotenv("gemini.env")  # You may want to rename this file to something like .env for SambaNova
 
-# 2. Configure Grok securely
-# Make sure your .env file has the line: GROK_API_KEY=your_actual_key (from xAI)
-api_key = os.getenv("GROK_API_KEY")  # Changed to Grok API key
+# 2. Configure SambaNova securely
+# Make sure your .env file has the line: SAMBANOVA_API_KEY=your_actual_key
+api_key = os.getenv("SAMBANOVA_API_KEY")  # Changed to SambaNova API key
 
 # ----------------------------
-# Grok Logic (renamed from Hugging Face)
+#
 # ----------------------------
-def grok_patient_explanation(patient_dict, risk_percent, pred):
+def sambanova_patient_explanation(patient_dict, risk_percent, pred):
     """
-    Generates a patient-friendly explanation using Grok API.
+    Generates a patient-friendly explanation using SambaNova API.
     """
     prompt = f"""
     You are a healthcare assistant inside a clinical decision support tool.
@@ -31,6 +31,9 @@ def grok_patient_explanation(patient_dict, risk_percent, pred):
     - Mention key reasons using the patient's values (e.g., BMI of {patient_dict['bmi']}).
     - Suggest next steps: confirmatory tests and lifestyle changes.
     - End with a safety note: consult a doctor.
+    - Include a diet chart in tabular form (use Markdown table format).
+    - Suggest exercises based on the patient's health data, and include suggestions for images (provide image URLs or descriptions that can be displayed visually).
+    - Add visually appealing elements like emojis, bold text, or simple formatting to make it engaging.
 
     Patient data: {patient_dict}
     Model output: prediction={pred} (0=no diabetes, 1=high risk), risk={risk_percent:.2f}%
@@ -42,16 +45,18 @@ def grok_patient_explanation(patient_dict, risk_percent, pred):
     What you can do now:
     When to see a doctor:
     Safety note:
+    Diet Chart:
+    Exercise Suggestions:
     """
 
-    # Using Grok API (xAI)
-    api_url = "https://api.x.ai/v1/chat/completions"
+    # Using SambaNova API
+    api_url = "https://api.sambanova.ai/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json"
     }
     payload = {
-        "model": "grok-beta",  # Use the appropriate model name; check xAI docs for latest
+        "model": "llama3-8b",  # Use the appropriate model name; check SambaNova docs for latest
         "messages": [{"role": "user", "content": prompt}],
         "max_tokens": 500,  # Adjust as needed
         "temperature": 0.7
@@ -131,7 +136,7 @@ if st.button("Predict"):
     st.divider()
     
     # ----------------------------
-    # Grok Explanation Section (renamed from Hugging Face)
+    # SambaNova Explanation Section (renamed from Gemini)
     # ----------------------------
     st.subheader("AI Explanation for Patient")
     
@@ -144,9 +149,9 @@ if st.button("Predict"):
     if not api_key:
         st.info("API key missing. Please check your .env file.")
     else:
-        with st.spinner("Grok is analyzing the results..."):
+        with st.spinner("SambaNova is analyzing the results..."):
             try:
-                explanation = grok_patient_explanation(patient_dict, risk_percent, pred)  # Changed function call
+                explanation = sambanova_patient_explanation(patient_dict, risk_percent, pred)  # Changed function call
                 st.markdown(explanation)
             except Exception as e:
                 st.error(f"AI Explanation failed: {e}")
