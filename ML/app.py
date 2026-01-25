@@ -7,7 +7,7 @@ import requests  # Added for SambaNova API calls
 from dotenv import load_dotenv
 
 # 1. Load environment variables from .env file
-load_dotenv("gemini.env")  # You may want to rename this file to something like .env for SambaNova
+load_dotenv("sambanova.env")  # You may want to rename this file to something like .env for SambaNova
 
 # 2. Configure SambaNova securely
 # Make sure your .env file has the line: SAMBANOVA_API_KEY=your_actual_key
@@ -136,7 +136,7 @@ if st.button("Predict"):
     st.divider()
     
     # ----------------------------
-    # SambaNova Explanation Section (renamed from Gemini)
+    # SambaNova Explanation Section
     # ----------------------------
     st.subheader("AI Explanation for Patient")
     

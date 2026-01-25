@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const PatientSchema = new mongoose.Schema(
   {
-    patientId: { type: String, required: true, unique: true, index: true }, // human-readable
+    patientId: { type: String, required: true, unique: true, index: true }, 
     name: { type: String, required: true, trim: true, index: true },
     dob: { type: Date, required: true },
     gender: { type: String, enum: ["male", "female", "other"], required: true },

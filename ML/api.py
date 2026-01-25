@@ -7,7 +7,7 @@ import requests
 from dotenv import load_dotenv
 from typing import Dict, Any
 
-load_dotenv("gemini.env")
+load_dotenv("sambanova.env")
 
 app = FastAPI(title="Diabetes Prediction API")
 

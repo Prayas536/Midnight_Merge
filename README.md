@@ -1,4 +1,4 @@
-# Diabetes Patient Management System (React + Node/Express + MongoDB)
+# Diabetes Patient Management System (React + Node/Express + MongoDB +ML & GENAI Integration)
 
 ## What you get
 - Doctor portal: patient CRUD, visit logging, analytics charts, ML risk prediction
@@ -10,9 +10,10 @@
 
 ## Monorepo structure
 ```
-diabetes-pms/
+Diabetes/
   backend/
   frontend/
+  streamlit/
 ```
 
 ---
@@ -28,7 +29,6 @@ diabetes-pms/
 ```bash
 cd backend
 npm install
-cp .env.example .env
 npm run dev
 ```
 
@@ -36,8 +36,15 @@ npm run dev
 ```bash
 cd ../frontend
 npm install
-cp .env.example .env
 npm start
+```
+
+### Streamlit
+```bash
+python -m venv .venv
+pip install -r streamlit\requirements.txt
+cd ../streamlit
+python api.py
 ```
 
 Open:
@@ -57,7 +64,6 @@ Open:
 
 ## 3) Streamlit ML integration (important)
 
-### Recommended Streamlit JSON API contract
 Expose an endpoint like:
 - `POST /predict`
 - Request JSON: the exact model inputs (example below)
@@ -69,29 +75,20 @@ Expose an endpoint like:
   "confidence": 0.82
 }
 ```
-
-### If your Streamlit app does NOT have a JSON route
-Best practical approach: add a small FastAPI/Flask wrapper next to Streamlit, OR add a `st.experimental_connection`-based handler.
-Because Streamlit is UI-first, many deployments don't expose JSON routes by default.
-
-**Simple Streamlit option (works in many cases):**
-Add to your Streamlit code (example idea only; adjust to your app):
-```python
-# streamlit_app.py
-import streamlit as st
-from streamlit.web.server import Server
-from flask import Flask, request, jsonify
-
-# NOTE: Streamlit doesn't officially promote Flask embedding in all setups.
-# If this doesn't work on your host, use a separate FastAPI wrapper.
-```
-
-**Most reliable option (recommended):**
-Create a small `fastapi_wrapper` service that loads the same model artifact and exposes `/predict` as JSON.
-Then point backend `ML_PREDICT_URL` to that wrapper.
-
+### Frontend env
+Set:
+- `SAMBANOVA_API_KEY`
+- `REACT_APP_API_BASE_URL`
 ### Backend env
 Set:
+- `NODE_ENV`
+- `MONGO_URI`
+- `JWT_SECRET`
+- `JWT_EXPIRES_IN`
+- `CORS_ORIGIN`
+- `USE_AUTH_COOKIE`
+- `COOKIE_NAME`
+- `SAMBANOVA_API_KEY`
 - `ML_PREDICT_URL`
 - `ML_TIMEOUT_MS`
 - `ML_RETRY_COUNT`
@@ -99,6 +96,9 @@ Set:
 
 Backend will call ML URL from server side with retries and return normalized result.
 
+### Streamlit env(name it as sambanova.env)
+Set:
+- `SAMBANOVA_API_KEY`
 ---
 
 ## 4) API overview
