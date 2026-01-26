@@ -7,7 +7,7 @@ import requests
 from dotenv import load_dotenv
 from typing import Dict, Any
 
-load_dotenv("sambanova.env")
+load_dotenv()
 
 app = FastAPI(title="Diabetes Prediction API")
 
@@ -23,6 +23,11 @@ except Exception as e:
 # Check API key
 api_key = os.getenv("SAMBANOVA_API_KEY")
 print(f"API key loaded: {api_key is not None}")
+
+@app.get("/")
+def health():
+    return {"status": "ML running"}
+
 
 class PredictionRequest(BaseModel):
     gender: str
@@ -126,7 +131,8 @@ async def predict(request: PredictionRequest):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Prediction failed: {str(e)}")
-
+    
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port)
