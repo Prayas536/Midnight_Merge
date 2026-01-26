@@ -7,7 +7,7 @@ const env = {
   MONGO_URI: process.env.MONGO_URI,
   JWT_SECRET: process.env.JWT_SECRET,
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || "7d",
-  CORS_ORIGIN: process.env.CORS_ORIGIN || "http://localhost:3000",
+  CORS_ORIGIN: process.env.CORS_ORIGIN,
   USE_AUTH_COOKIE: String(process.env.USE_AUTH_COOKIE || "false") === "true",
   COOKIE_NAME: process.env.COOKIE_NAME || "dpms_token",
   ML_PREDICT_URL: process.env.ML_PREDICT_URL,
