@@ -1,11 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import api from "../../api/axios";
+import { AuthContext } from "../../context/AuthContext";
 import PageHeader from "../../components/layout/PageHeader";
 import GlassCard from "../../components/ui/GlassCard";
 import RiskGauge from "../../components/charts/RiskGauge";
 
-export default function Predict() {
+export default function PatientPredict() {
+  const { user } = useContext(AuthContext);
+  const [profile, setProfile] = useState(null);
   const [formData, setFormData] = useState({
     gender: "Male",
     age: "",
@@ -19,6 +22,33 @@ export default function Predict() {
   const [msg, setMsg] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  const loadProfile = async () => {
+    try {
+      const res = await api.get("/my/profile");
+      const profileData = res.data.data;
+      setProfile(profileData);
+
+      // Pre-fill form with profile data
+      setFormData(prev => ({
+        ...prev,
+        gender: profileData.gender || prev.gender,
+        age: profileData.dob ? new Date().getFullYear() - new Date(profileData.dob).getFullYear() : prev.age,
+        hypertension: profileData.hypertension ? 1 : 0,
+        heart_disease: profileData.heartDisease ? 1 : 0,
+        smoking_history: profileData.smokingHistory || prev.smoking_history,
+        bmi: profileData.bmi || prev.bmi,
+        HbA1c_level: profileData.HbA1cLevel || prev.HbA1c_level,
+        blood_glucose_level: profileData.bloodGlucoseLevel || prev.blood_glucose_level
+      }));
+    } catch (error) {
+      console.error('Error loading profile:', error);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -54,6 +84,47 @@ export default function Predict() {
 
   const isFormValid = formData.age && formData.bmi && formData.HbA1c_level && formData.blood_glucose_level;
 
+  const getNextSteps = (riskLabel) => {
+    switch (riskLabel) {
+      case 'High':
+        return {
+          title: "Immediate Action Required",
+          steps: [
+            "Schedule an appointment with your doctor within 1 week",
+            "Monitor blood glucose levels daily",
+            "Review and adjust medication as prescribed",
+            "Consider lifestyle modifications and dietary changes",
+            "Regular exercise and weight management"
+          ],
+          color: "danger"
+        };
+      case 'Medium':
+        return {
+          title: "Monitor Closely",
+          steps: [
+            "Schedule follow-up appointment within 2-4 weeks",
+            "Continue regular blood glucose monitoring",
+            "Maintain healthy lifestyle habits",
+            "Discuss results with your healthcare provider",
+            "Consider preventive measures"
+          ],
+          color: "warning"
+        };
+      default:
+        return {
+          title: "Maintain Healthy Habits",
+          steps: [
+            "Continue regular check-ups every 3-6 months",
+            "Maintain healthy diet and exercise routine",
+            "Monitor blood glucose levels as recommended",
+            "Stay informed about diabetes prevention",
+            "Share results with your doctor for records"
+          ],
+          color: "success"
+        };
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -62,15 +133,15 @@ export default function Predict() {
     >
       <PageHeader
         title="Diabetes Risk Assessment"
-        subtitle="Advanced AI-powered risk prediction for personalized diabetes management"
+        subtitle="Get personalized insights about your diabetes risk factors"
       />
 
       <div className="row g-4">
-        {/* Left Side - Form */}
-        <div className="col-lg-6">
+        {/* Form Section */}
+        <div className="col-lg-8">
           <GlassCard className="p-4">
             <h5 className="mb-4">
-              <i className="fas fa-clipboard-list me-2"></i>Patient Information
+              <i className="fas fa-clipboard-list me-2"></i>Health Information
             </h5>
 
             {msg && (
@@ -110,7 +181,7 @@ export default function Predict() {
                     required
                     min="1"
                     max="120"
-                    placeholder="Enter age"
+                    placeholder="Enter your age"
                   />
                 </div>
                 <div className="col-md-6">
@@ -180,7 +251,7 @@ export default function Predict() {
                     required
                     min="3"
                     max="15"
-                    placeholder="e.g., 7.2"
+                    placeholder="e.g., 5.7"
                   />
                   <div className="form-text">Glycated Hemoglobin</div>
                 </div>
@@ -195,7 +266,7 @@ export default function Predict() {
                     required
                     min="50"
                     max="500"
-                    placeholder="e.g., 140"
+                    placeholder="e.g., 95"
                   />
                   <div className="form-text">Fasting Blood Glucose</div>
                 </div>
@@ -210,11 +281,11 @@ export default function Predict() {
               >
                 {loading ? (
                   <>
-                    <i className="fas fa-spinner fa-spin me-2"></i>Analyzing Risk...
+                    <i className="fas fa-spinner fa-spin me-2"></i>Analyzing Your Risk...
                   </>
                 ) : (
                   <>
-                    <i className="fas fa-brain me-2"></i>Calculate Risk Assessment
+                    <i className="fas fa-brain me-2"></i>Get My Risk Assessment
                   </>
                 )}
               </motion.button>
@@ -222,23 +293,15 @@ export default function Predict() {
           </GlassCard>
         </div>
 
-        {/* Right Side - Preview/Results */}
-        <div className="col-lg-6">
+        {/* Results Section */}
+        <div className="col-lg-4">
           {!result ? (
             <GlassCard className="p-4 text-center">
               <div className="mb-4">
                 <i className="fas fa-chart-pie fs-1 text-muted"></i>
               </div>
-              <h5>Risk Assessment Preview</h5>
-              <p className="text-muted">Fill out the form to see the risk analysis</p>
-              {!isFormValid && (
-                <div className="mt-3">
-                  <small className="text-warning">
-                    <i className="fas fa-info-circle me-1"></i>
-                    Complete all required fields to enable prediction
-                  </small>
-                </div>
-              )}
+              <h6>Your Risk Assessment</h6>
+              <p className="text-muted small">Complete the form to see your personalized risk analysis</p>
             </GlassCard>
           ) : (
             <motion.div
@@ -246,54 +309,32 @@ export default function Predict() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
             >
-              <GlassCard className="p-4">
-                <h5 className="text-center mb-4">
-                  <i className="fas fa-chart-line me-2"></i>Risk Assessment Results
-                </h5>
-
-                <div className="mb-4">
-                  <RiskGauge riskScore={result.riskScore} riskLabel={result.riskLabel} />
+              <GlassCard className="p-4 mb-4">
+                <h6 className="text-center mb-4">Your Risk Assessment</h6>
+                <RiskGauge riskScore={result.riskScore} riskLabel={result.riskLabel} />
+                <div className="text-center mt-3">
+                  <small className="text-muted">Confidence: {(result.confidence * 100).toFixed(1)}%</small>
                 </div>
+              </GlassCard>
 
-                <div className="row g-3 mb-4">
-                  <div className="col-6">
-                    <div className="text-center">
-                      <div className="fw-semibold text-muted small">Risk Score</div>
-                      <div className="fs-4 fw-bold">{result.riskScore?.toFixed(3) || 'N/A'}</div>
-                    </div>
-                  </div>
-                  <div className="col-6">
-                    <div className="text-center">
-                      <div className="fw-semibold text-muted small">Confidence</div>
-                      <div className="fs-4 fw-bold">{result.confidence ? `${(result.confidence * 100).toFixed(1)}%` : 'N/A'}</div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border-top pt-4">
-                  <h6 className="fw-semibold mb-3">
-                    <i className="fas fa-lightbulb me-2"></i>Recommendations
+              {/* Next Steps Card */}
+              <GlassCard className={`p-4 border-${getNextSteps(result.riskLabel).color}`}>
+                <div className="d-flex align-items-start mb-3">
+                  <i className={`fas fa-info-circle text-${getNextSteps(result.riskLabel).color} me-2 mt-1`}></i>
+                  <h6 className={`mb-0 text-${getNextSteps(result.riskLabel).color}`}>
+                    {getNextSteps(result.riskLabel).title}
                   </h6>
-                  <div className="bg-light p-3 rounded">
-                    <p className="mb-2">
-                      <strong>Immediate Actions:</strong>
-                    </p>
-                    <ul className="mb-0 small">
-                      <li>Schedule follow-up appointment within 2 weeks</li>
-                      <li>Monitor blood glucose levels daily</li>
-                      <li>Review medication adherence</li>
-                      <li>Consider lifestyle counseling</li>
-                    </ul>
-                  </div>
                 </div>
-
-                <div className="d-flex gap-2 mt-4">
-                  <button className="btn btn-outline-primary flex-fill">
-                    <i className="fas fa-save me-2"></i>Save to Patient
-                  </button>
-                  <button className="btn btn-outline-secondary flex-fill">
-                    <i className="fas fa-print me-2"></i>Export Report
-                  </button>
+                <ul className="small mb-0">
+                  {getNextSteps(result.riskLabel).steps.map((step, index) => (
+                    <li key={index} className="mb-2">{step}</li>
+                  ))}
+                </ul>
+                <div className="mt-3 pt-3 border-top">
+                  <p className="small text-muted mb-2">
+                    <i className="fas fa-user-md me-1"></i>
+                    Remember: This is not a medical diagnosis. Always consult with your healthcare provider.
+                  </p>
                 </div>
               </GlassCard>
             </motion.div>

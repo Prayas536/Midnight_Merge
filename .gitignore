@@ -100,8 +100,8 @@ secrets.json
 /frontend/.env
 /frontend/.env.*
 
-# Ignore dataset in streamlit
-/streamlit/diabetes_dataset.csv
+# Ignore dataset in ML
+/ML/diabetes_dataset.csv
 
 # Node modules
 /backend/node_modules/

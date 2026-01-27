@@ -7,7 +7,7 @@ const c = require("../controllers/prediction.controller");
 
 const router = express.Router();
 
-router.use(auth, requireRole("doctor"));
+router.use(auth, requireRole(["doctor", "patient"]));
 
 router.post(
   "/",

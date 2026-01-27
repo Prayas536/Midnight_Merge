@@ -1,138 +1,113 @@
-# Diabetes Patient Management System (React + Node/Express + MongoDB +ML & GENAI Integration)
+# 🩺 Diabetes Patient Management System
 
-## What you get
-- Doctor portal: patient CRUD, visit logging, analytics charts, ML risk prediction
-- Patient portal: profile, visit history, charts
-- Secure API: JWT + bcrypt + validation + RBAC
-- ML integration: backend calls your Streamlit model endpoint (never from frontend)
+**React · Node.js · Express · MongoDB · ML · GenAI**
 
----
+🔗 **[Live Demo](https://diabetespredictions-vert.vercel.app)**
 
-## Monorepo structure
+## Overview
+
+A full-stack Diabetes Patient Management System for doctors and patients with secure authentication, analytics dashboards, and ML-based risk prediction.
+
+**Demonstrates:** Scalable backend architecture, role-based access control, ML & GenAI integration, production-ready API design.
+
+## ✨ Features
+
+**👨‍⚕️ Doctor Portal**
+- Create, update & manage patients (CRUD)
+- Log patient visits
+- View analytics & charts
+- Trigger ML risk prediction
+
+**🧑‍🦽 Patient Portal**
+- Secure login
+- View profile & visit history
+- Health trend charts
+
+**🔐 Security & Backend**
+- JWT authentication + Bcrypt hashing
+- Input validation & RBAC
+- HttpOnly cookies (production)
+
+**🤖 ML & GenAI Integration**
+- Server-side ML model calls
+- Retry + timeout handling
+- Normalized prediction responses
+
+## 🗂️ Monorepo Structure
+
 ```
 Diabetes/
-  backend/
-  frontend/
-  streamlit/
+  ├── backend/
+  ├── frontend/
+  └── ML/
 ```
 
----
+## ⚡ Quick Start
 
-## 1) Run locally (quickstart)
+**Prerequisites:** Node.js 18+, MongoDB (local/Atlas), ML endpoint
 
-### Prereqs
-- Node.js 18+
-- MongoDB running locally or a MongoDB Atlas URI
-- Your Streamlit model deployed with a JSON prediction endpoint (see section 4)
-
-### Backend
+**Backend:**
 ```bash
-cd backend
-npm install
-npm run dev
+cd backend && npm install && npm run dev
 ```
 
-### Frontend
+**Frontend:**
 ```bash
-cd ../frontend
-npm install
-npm start
+cd frontend && npm install && npm start
 ```
 
-### Streamlit
+**ML Service:**
 ```bash
-python -m venv .venv
-pip install -r streamlit\requirements.txt
-cd ../streamlit
-python api.py
+cd ML && py -3.11 -m venv venv && venv\Scripts\activate
+pip install -r requirements.txt && python api.py
 ```
 
-Open:
-- Frontend: http://localhost:3000
-- Backend health: http://localhost:5000/api/health
+**Open:** 
+- Frontend **[Live Demo](https://diabetespredictions-vert.vercel.app)**, 
+- Backend **[Live Demo](https://diabetes-backend-1fwr.onrender.com)**, 
+- ML **[Live Demo](https://diabetes-ml-xqt3.onrender.com)**
 
----
+## 🔐 Onboarding Flow
 
-## 2) Default logins / onboarding flow
-1) Register a doctor
-2) Doctor creates a patient — the API returns `patientId` and a generated patient password (shown once)
-3) Patient logs in using patientId + password
+1. Register a doctor
+2. Doctor creates patient (returns `patientId` + auto-generated password)
+3. Patient logs in with `patientId` + password
 
-> Patient passwords are hashed in DB; plain password is only returned once at creation.
+> Passwords are hashed in DB; plain password shown once only at creation.
 
----
+## 🤖 ML Integration
 
-## 3) Streamlit ML integration (important)
-
-Expose an endpoint like:
-- `POST /predict`
-- Request JSON: the exact model inputs (example below)
-- Response JSON:
-```json
-{
-  "riskLabel": "High",
-  "riskScore": 0.82,
-  "confidence": 0.82
-}
+**ML Endpoint Contract:**
 ```
-### Frontend env
-Set:
-- `SAMBANOVA_API_KEY`
-- `REACT_APP_API_BASE_URL`
-### Backend env
-Set:
-- `NODE_ENV`
-- `MONGO_URI`
-- `JWT_SECRET`
-- `JWT_EXPIRES_IN`
-- `CORS_ORIGIN`
-- `USE_AUTH_COOKIE`
-- `COOKIE_NAME`
-- `SAMBANOVA_API_KEY`
-- `ML_PREDICT_URL`
-- `ML_TIMEOUT_MS`
-- `ML_RETRY_COUNT`
-- `MODEL_VERSION`
+POST /predict
+Response: { "riskLabel": "High", "riskScore": 0.82, "confidence": 0.82 }
+```
 
-Backend will call ML URL from server side with retries and return normalized result.
+**Environment Variables:**
 
-### Streamlit env(name it as sambanova.env)
-Set:
-- `SAMBANOVA_API_KEY`
----
+| **Frontend** | **Backend** | **ML** |
+|---|---|---|
+| `REACT_APP_API_BASE_URL` | `PORT`, `NODE_ENV`, `MONGO_URI` | `SAMBANOVA_API_KEY` |
+| `SAMBANOVA_API_KEY` | `JWT_SECRET`, `JWT_EXPIRES_IN` | |
+| | `CORS_ORIGIN`, `USE_AUTH_COOKIE` | |
+| | `ML_PREDICT_URL`, `ML_TIMEOUT_MS`, `ML_RETRY_COUNT` | |
 
-## 4) API overview
+## 📡 API Overview
 
-Auth:
-- POST `/api/auth/register-doctor`
-- POST `/api/auth/login`
-- POST `/api/auth/login-patient`
-- GET  `/api/auth/me`
+**Auth:** `POST /api/auth/register-doctor`, `POST /api/auth/login`, `POST /api/auth/login-patient`, `GET /api/auth/me`
 
-Patients (doctor only):
-- POST `/api/patients`
-- GET `/api/patients?q=search`
-- GET `/api/patients/:id`
-- PUT `/api/patients/:id`
-- DELETE `/api/patients/:id`
+**Patients (Doctor only):** `POST /api/patients`, `GET /api/patients?q=search`, `GET /api/patients/:id`, `PUT /api/patients/:id`, `DELETE /api/patients/:id`
 
-Visits:
-- POST `/api/patients/:id/visits` (doctor)
-- GET `/api/patients/:id/visits` (doctor)
-- GET `/api/my/visits` (patient)
-- GET `/api/my/profile` (patient)
+**Visits:** `POST /api/patients/:id/visits`, `GET /api/patients/:id/visits`, `GET /api/my/visits`, `GET /api/my/profile`
 
-Prediction:
-- POST `/api/predictions` (doctor)
+**Prediction:** `POST /api/predictions`
 
-Response shape:
-- Success: `{ "success": true, "data": ... }`
-- Error: `{ "success": false, "message": "...", "errors": [...] }`
+**Response Format:** `{ "success": true, "data": {} }` or `{ "success": false, "message": "...", "errors": [...] }`
 
----
+## ⚠️ Loading Time Note
 
-## 5) Production notes (short)
-- Use HttpOnly cookie mode: set `USE_AUTH_COOKIE=true`
-- Put API behind HTTPS + set secure cookie options
-- Lock CORS to your real frontend origin
-- Use MongoDB Atlas in production
+**Deployment:** Frontend on Vercel (instant), Backend & ML on Render (free tier)
+
+**Why delay:** Render free tier sleeps when idle; first request wakes it up (10–30s). Subsequent requests are fast.
+
+If you see a loading animation, please wait—the system is initializing.
