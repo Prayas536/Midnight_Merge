@@ -274,7 +274,7 @@ export default function Predict() {
                   <h6 className="fw-semibold mb-3">
                     <i className="fas fa-lightbulb me-2"></i>Recommendations
                   </h6>
-                  <div className="bg-light p-3 rounded">
+                  <div className="bg-dark p-3 rounded">
                     <p className="mb-2">
                       <strong>Immediate Actions:</strong>
                     </p>

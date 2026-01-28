@@ -8,5 +8,6 @@ router.use(auth);
 
 router.get("/profile", c.myProfile);
 router.get("/visits", c.myVisits);
+router.get("/latest-prediction", c.myLatestPrediction);
 
 module.exports = router;

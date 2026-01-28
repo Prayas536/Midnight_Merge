@@ -70,8 +70,8 @@ export default function PatientDashboard() {
           <StatCard
             icon="fas fa-tint"
             title="HbA1c"
-            value={`${currentMetrics.hba1c || 'N/A'}%`}
-            delta={currentMetrics.hba1c ? -0.3 : null}
+            value={`${currentMetrics.HbA1cLevel || 'N/A'}%`}
+            delta={currentMetrics.HbA1cLevel ? -0.3 : null}
           />
         </div>
         <div className="col-md-3">
@@ -86,8 +86,8 @@ export default function PatientDashboard() {
           <StatCard
             icon="fas fa-heartbeat"
             title="Blood Glucose"
-            value={`${currentMetrics.bloodGlucose || 'N/A'} mg/dL`}
-            delta={currentMetrics.bloodGlucose ? -5 : null}
+            value={`${currentMetrics.bloodGlucoseLevel || 'N/A'} mg/dL`}
+            delta={currentMetrics.bloodGlucoseLevel ? -5 : null}
           />
         </div>
         <div className="col-md-3">
@@ -111,7 +111,7 @@ export default function PatientDashboard() {
               <div>
                 <div className="mb-3">
                   <small className="text-muted">Date</small>
-                  <div className="fw-semibold">{new Date(latestVisit.date).toLocaleDateString()}</div>
+                  <div className="fw-semibold">{new Date(latestVisit.visitDate).toLocaleDateString()}</div>
                 </div>
                 <div className="mb-3">
                   <small className="text-muted">Doctor's Notes</small>
@@ -149,8 +149,8 @@ export default function PatientDashboard() {
             {visits.length > 1 ? (
               <HbA1cChart
                 data={{
-                  labels: visits.slice().reverse().map(v => new Date(v.date).toLocaleDateString()),
-                  values: visits.slice().reverse().map(v => v.metrics?.hba1c || 0)
+                  labels: visits.slice().reverse().map(v => new Date(v.visitDate).toLocaleDateString()),
+                  values: visits.slice().reverse().map(v => v.metrics?.HbA1cLevel || 0)
                 }}
               />
             ) : (

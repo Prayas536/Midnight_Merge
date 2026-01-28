@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import { AuthContext } from "../../context/AuthContext";
 import PageHeader from "../../components/layout/PageHeader";
@@ -8,6 +9,7 @@ import RiskGauge from "../../components/charts/RiskGauge";
 
 export default function PatientPredict() {
   const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
   const [profile, setProfile] = useState(null);
   const [formData, setFormData] = useState({
     gender: "Male",
@@ -22,6 +24,7 @@ export default function PatientPredict() {
   const [msg, setMsg] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [showPostPredictionModal, setShowPostPredictionModal] = useState(false);
 
   useEffect(() => {
     loadProfile();
@@ -75,12 +78,32 @@ export default function PatientPredict() {
       };
       const res = await api.post("/predictions", payload);
       setResult(res.data.data);
+      
+      // Save prediction context for AI chat
+      localStorage.setItem(
+        "prediction_context",
+        JSON.stringify({
+          prediction: res.data.data.prediction,
+          risk_percent: res.data.data.risk_percent,
+          patient_data: formData
+        })
+      );
+
+      // Show post-prediction modal after a brief delay
+      setTimeout(() => {
+        setShowPostPredictionModal(true);
+      }, 800);
     } catch (e2) {
       setMsg(e2?.response?.data?.message || "Prediction failed");
     } finally {
       setLoading(false);
     }
   }
+
+  const handleOpenAIChat = () => {
+    setShowPostPredictionModal(false);
+    navigate("/patient/ai-chat");
+  };
 
   const isFormValid = formData.age && formData.bmi && formData.HbA1c_level && formData.blood_glucose_level;
 
@@ -341,6 +364,63 @@ export default function PatientPredict() {
           )}
         </div>
       </div>
+
+      {/* Post-Prediction Modal */}
+      {showPostPredictionModal && (
+        <motion.div
+          className="modal-overlay"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() => setShowPostPredictionModal(false)}
+        >
+          <motion.div
+            className="modal-content-prediction"
+            initial={{ scale: 0.8, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.8, y: 20 }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="modal-header-prediction">
+              <h5 className="modal-title-prediction">
+                <i className="fas fa-check-circle text-success me-2"></i>
+                Assessment Complete!
+              </h5>
+              <button
+                type="button"
+                className="btn-close"
+                onClick={() => setShowPostPredictionModal(false)}
+              ></button>
+            </div>
+            <div className="modal-body-prediction">
+              <p className="mb-3">
+                Your risk assessment has been completed and saved. Would you like to chat with our AI Assistant for personalized insights and recommendations?
+              </p>
+              <div className="alert alert-info mb-3">
+                <i className="fas fa-lightbulb me-2"></i>
+                <strong>AI Assistant can:</strong> Answer your health questions, explain risk factors, and provide lifestyle recommendations.
+              </div>
+            </div>
+            <div className="modal-footer-prediction">
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={() => setShowPostPredictionModal(false)}
+              >
+                Maybe Later
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary gradient-btn"
+                onClick={handleOpenAIChat}
+              >
+                <i className="fas fa-robot me-2"></i>
+                Chat with AI Assistant
+              </button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
     </motion.div>
   );
 }

@@ -6,8 +6,11 @@ import PageHeader from "../../components/layout/PageHeader";
 import StatCard from "../../components/ui/StatCard";
 import GlassCard from "../../components/ui/GlassCard";
 import HbA1cChart from "../../components/charts/HbA1cChart";
+import { useContext } from "react";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function DoctorDashboard() {
+  const { user, loading: authLoading } = useContext(AuthContext);
   const [stats, setStats] = useState({
     totalPatients: 0,
     visitsThisMonth: 0,
@@ -18,8 +21,10 @@ export default function DoctorDashboard() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadDashboardData();
-  }, []);
+    if (!authLoading) {
+      loadDashboardData();
+    }
+  }, [authLoading]);
 
   const loadDashboardData = async () => {
     try {
@@ -67,7 +72,7 @@ export default function DoctorDashboard() {
     </Link>,
   ];
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="container">
         <div className="skeleton" style={{ height: '400px' }}></div>
@@ -82,7 +87,7 @@ export default function DoctorDashboard() {
       transition={{ duration: 0.5 }}
     >
       <PageHeader
-        title="Welcome back, Doctor"
+        title={`Welcome back, ${user?.name || "Doctor"}`}
         subtitle="Monitor your patients' diabetes management"
         actions={quickActions}
       />

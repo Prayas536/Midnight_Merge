@@ -20,6 +20,7 @@ export default function SideNav({ collapsed, open, onClose }) {
     { to: '/patient/profile', icon: 'fas fa-user', label: 'Profile' },
     { to: '/patient/visits', icon: 'fas fa-calendar-alt', label: 'Visits' },
     { to: '/patient/predict', icon: 'fas fa-brain', label: 'Predict' },
+    { to: '/patient/ai-chat', icon: 'fas fa-comments', label: 'AI Assistant' }
   ];
 
   return (

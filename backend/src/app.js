@@ -12,6 +12,7 @@ const authRoutes = require("./routes/auth.routes");
 const patientRoutes = require("./routes/patient.routes");
 const myRoutes = require("./routes/my.routes");
 const predictionRoutes = require("./routes/prediction.routes");
+const aiRoutes = require("./routes/aiRoutes.js");
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/patients", patientRoutes);
 app.use("/api/my", myRoutes);
 app.use("/api/predictions", predictionRoutes);
+app.use("/api/ai", aiRoutes);
 
 // 404 + error handler
 app.use(notFound);

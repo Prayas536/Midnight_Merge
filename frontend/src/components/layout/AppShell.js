@@ -20,6 +20,7 @@ import PatientDashboard from '../../pages/patient/PatientDashboard';
 import Profile from '../../pages/patient/Profile';
 import Visits from '../../pages/patient/Visits';
 import PatientPredict from '../../pages/patient/Predict';
+import AIChat from '../../pages/patient/AIChat';
 
 export default function AppShell() {
   const { user } = useContext(AuthContext);
@@ -65,6 +66,7 @@ export default function AppShell() {
             <Route path="/patient/profile" element={<ProtectedRoute allow={["patient"]}><Profile /></ProtectedRoute>} />
             <Route path="/patient/visits" element={<ProtectedRoute allow={["patient"]}><Visits /></ProtectedRoute>} />
             <Route path="/patient/predict" element={<ProtectedRoute allow={["patient"]}><PatientPredict /></ProtectedRoute>} />
+            <Route path="/patient/ai-chat" element={<ProtectedRoute allow={["patient"]}><AIChat /></ProtectedRoute>} />
 
             <Route path="*" element={<div className="text-center py-5">Page Not Found</div>} />
           </Routes>

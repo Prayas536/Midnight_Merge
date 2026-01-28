@@ -6,7 +6,12 @@ const Patient = require("../models/Patient");
 
 function signToken(user) {
   return jwt.sign(
-    { role: user.userType, linkedPatientId: user.linkedPatientId || null },
+    { 
+      role: user.userType, 
+      name: user.name,
+      email: user.email,
+      linkedPatientId: user.linkedPatientId || null 
+    },
     env.JWT_SECRET,
     { subject: user._id.toString(), expiresIn: env.JWT_EXPIRES_IN }
   );
