@@ -22,7 +22,6 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     if (token) fetchMe();
     else setLoading(false);
-    // eslint-disable-next-line
   }, [token]);
 
   const value = useMemo(

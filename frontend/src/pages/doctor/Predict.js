@@ -5,7 +5,14 @@ import PageHeader from "../../components/layout/PageHeader";
 import GlassCard from "../../components/ui/GlassCard";
 import RiskGauge from "../../components/charts/RiskGauge";
 
+
 export default function Predict() {
+  const [showModal, setShowModal] = useState(false);
+  const [featureName, setFeatureName] = useState("");
+  const openComingSoon = (feature) => {
+    setFeatureName(feature);
+    setShowModal(true);
+  };
   const [formData, setFormData] = useState({
     gender: "Male",
     age: "",
@@ -274,7 +281,7 @@ export default function Predict() {
                   <h6 className="fw-semibold mb-3">
                     <i className="fas fa-lightbulb me-2"></i>Recommendations
                   </h6>
-                  <div className="bg-dark p-3 rounded">
+                  <div className=" p-3 rounded">
                     <p className="mb-2">
                       <strong>Immediate Actions:</strong>
                     </p>
@@ -287,15 +294,77 @@ export default function Predict() {
                   </div>
                 </div>
 
-                <div className="d-flex gap-2 mt-4">
+                {/* <div className="d-flex gap-2 mt-4">
                   <button className="btn btn-outline-primary flex-fill">
                     <i className="fas fa-save me-2"></i>Save to Patient
                   </button>
                   <button className="btn btn-outline-secondary flex-fill">
                     <i className="fas fa-print me-2"></i>Export Report
                   </button>
-                </div>
+                </div> */}
+                <div className="d-flex gap-2 mt-4">
+  <button
+    className="btn btn-outline-primary flex-fill"
+    onClick={() => openComingSoon("Save to Patient")}
+  >
+    <i className="fas fa-save me-2"></i>Save to Patient
+  </button>
+
+  <button
+    className="btn btn-outline-secondary flex-fill"
+    onClick={() => openComingSoon("Export Report")}
+  >
+    <i className="fas fa-print me-2"></i>Export Report
+  </button>
+</div>
+
               </GlassCard>
+              {showModal && (
+  <div className="modal fade show d-block" tabIndex="-1">
+    <div className="modal-dialog modal-dialog-centered">
+      <motion.div
+        className="modal-content"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+      >
+        <div className="modal-header">
+          <h5 className="modal-title">
+            <i className="fas fa-tools me-2"></i>Coming Soon
+          </h5>
+          <button
+            type="button"
+            className="btn-close"
+            onClick={() => setShowModal(false)}
+          ></button>
+        </div>
+
+        <div className="modal-body text-center">
+          <i className="fas fa-hourglass-half fs-1 text-primary mb-3"></i>
+          <p className="mb-1 fw-semibold">{featureName}</p>
+          <p className="text-muted mb-0">
+            This feature is under development and will be available soon 🚀
+          </p>
+        </div>
+
+        <div className="modal-footer">
+          <button
+            className="btn btn-primary w-100"
+            onClick={() => setShowModal(false)}
+          >
+            Got it
+          </button>
+        </div>
+      </motion.div>
+    </div>
+
+    {/* Backdrop */}
+    <div
+      className="modal-backdrop fade show"
+      onClick={() => setShowModal(false)}
+    ></div>
+  </div>
+)}
+
             </motion.div>
           )}
         </div>

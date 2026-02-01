@@ -49,20 +49,23 @@ export default function SideNav({ collapsed, open, onClose }) {
                   {(open || !collapsed) && <span>{item.label}</span>}
                 </NavLink>
               </li>
+
             ))}
+            {/* logout button */}
+            
+            <li className="nav-item">
+              <button
+                className="nav-link d-flex align-items-center text-danger border-0 bg-transparent w-100"
+                onClick={() => { handleLogout(); onClose(); }}
+                title={collapsed && !open ? 'Logout' : ''}
+              >
+                <i className={`fas fa-sign-out-alt ${collapsed && !open ? '' : 'me-3'}`}></i>
+                {(open || !collapsed) && <span>Logout</span>}
+              </button>
+            </li>
+
           </ul>
-          
-          {/* Logout Button */}
-          <div className="sidebar-footer mt-auto">
-            <button 
-              className="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center"
-              onClick={() => { handleLogout(); onClose(); }}
-              title={collapsed && !open ? 'Logout' : ''}
-            >
-              <i className="fas fa-sign-out-alt"></i>
-              {(open || !collapsed) && <span className="ms-2">Logout</span>}
-            </button>
-          </div>
+
         </div>
       </nav>
     </>

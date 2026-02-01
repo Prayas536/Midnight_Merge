@@ -1,6 +1,5 @@
 import React from "react";
 
-// Parse markdown to HTML elements
 const parseMarkdown = (text) => {
   if (!text) return text;
   
