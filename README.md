@@ -91,6 +91,9 @@ Patients face:
    - trends across visits
    - doctor advice
 6. Patient can use the GenAI assistant for lifestyle questions (non-diagnostic)
+
+![Diabetes Workflow](frontend/assets/workflow.png)
+
 ---
 ## 5) 🤖 ML + GenAI integration
 ### 5.1 🧠 ML: Logistic Regression (Python service)
