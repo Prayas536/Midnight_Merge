@@ -6,7 +6,7 @@ const patientCreateValidator = [
   body("gender").isIn(["male", "female", "other"]).withMessage("gender invalid"),
   body("hypertension").optional().isBoolean().withMessage("hypertension must be boolean"),
   body("heartDisease").optional().isBoolean().withMessage("heartDisease must be boolean"),
-  body("smokingHistory").optional().isIn(["never", "former", "current", "unknown"]).withMessage("smokingHistory invalid"),
+  body("smokingHistory").optional().isIn(["never", "former", "current", "not current", "no info", "ever"]).withMessage("smokingHistory invalid"),
   body("bmi").optional({ nullable: true }).isFloat({ min: 0, max: 100 }).withMessage("bmi out of range"),
   body("HbA1cLevel").optional({ nullable: true }).isFloat({ min: 0, max: 20 }).withMessage("HbA1cLevel out of range"),
   body("bloodGlucoseLevel").optional({ nullable: true }).isFloat({ min: 0, max: 600 }).withMessage("bloodGlucoseLevel out of range"),

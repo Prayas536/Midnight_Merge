@@ -33,6 +33,9 @@ export default function AddVisit() {
   const [predLoading, setPredLoading] = useState(false);
   const [prediction, setPrediction] = useState(null);
 
+  // AI Notes Generation
+  const [aiNotesLoading, setAiNotesLoading] = useState(false);
+
   const steps = [
     { id: 1, title: "Patient Info", icon: "fas fa-user" },
     { id: 2, title: "Health Metrics", icon: "fas fa-heartbeat" },
@@ -90,6 +93,51 @@ export default function AddVisit() {
       setMsg(e?.response?.data?.message || "Prediction failed");
     } finally {
       setPredLoading(false);
+    }
+  }
+
+  async function generateAINotes() {
+    setAiNotesLoading(true);
+    setMsg(null);
+    try {
+      // Get visit history for context
+      let visitHistory = [];
+      try {
+        const visitsRes = await api.get(`/patients/${id}/visits`);
+        visitHistory = visitsRes.data.data || [];
+      } catch (e) {
+        // No visits yet, that's fine
+      }
+
+      const res = await api.post('/ai/generate-notes', {
+        patient_data: {
+          name: patient?.name,
+          age: age,
+          gender: gender
+        },
+        current_metrics: {
+          HbA1cLevel: HbA1cLevel === '' ? null : Number(HbA1cLevel),
+          bloodGlucoseLevel: bloodGlucoseLevel === '' ? null : Number(bloodGlucoseLevel),
+          bmi: bmi === '' ? null : Number(bmi),
+          hypertension: Number(hypertension),
+          heartDisease: Number(heartDisease),
+          smokingHistory: smokingHistory
+        },
+        visit_history: visitHistory
+      });
+
+      if (res.data.success && res.data.data) {
+        if (res.data.data.notes) {
+          setNotes(res.data.data.notes);
+        }
+        if (res.data.data.recommendations) {
+          setRecs(res.data.data.recommendations);
+        }
+      }
+    } catch (e) {
+      setMsg(e?.response?.data?.message || 'AI notes generation failed');
+    } finally {
+      setAiNotesLoading(false);
     }
   }
 
@@ -352,9 +400,29 @@ export default function AddVisit() {
             <div className="row g-4">
               <div className="col-lg-8">
                 <GlassCard className="p-4">
-                  <h5 className="mb-4">
-                    <i className="fas fa-stethoscope me-2 text-info"></i>Clinical Assessment
-                  </h5>
+                  <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h5 className="mb-0">
+                      <i className="fas fa-stethoscope me-2 text-info"></i>Clinical Assessment
+                    </h5>
+                    <button
+                      type="button"
+                      className="ai-generate-btn"
+                      onClick={generateAINotes}
+                      disabled={aiNotesLoading}
+                    >
+                      {aiNotesLoading ? (
+                        <>
+                          <i className="fas fa-spinner fa-spin"></i>
+                          <span>Generating...</span>
+                        </>
+                      ) : (
+                        <>
+                          <i className="fas fa-magic sparkle"></i>
+                          <span>Generate with AI</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                   <div className="mb-4">
                     <label className="form-label fw-semibold">Doctor's Notes</label>
                     <textarea

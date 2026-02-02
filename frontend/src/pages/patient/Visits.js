@@ -1,26 +1,34 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import api from "../../api/axios";
 import PageHeader from "../../components/layout/PageHeader";
 import GlassCard from "../../components/ui/GlassCard";
 import LoadingSpinner from "../../components/LoadingSpinner";
 import HbA1cChart from "../../components/charts/HbA1cChart";
+import HealthJourneyAI from "../../components/HealthJourneyAI";
+import { AuthContext } from "../../context/AuthContext";
 
 export default function PatientVisits() {
+  const { user } = useContext(AuthContext);
   const [visits, setVisits] = useState(null);
+  const [profile, setProfile] = useState(null);
   const [expandedVisit, setExpandedVisit] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadVisits();
+    loadData();
   }, []);
 
-  const loadVisits = async () => {
+  const loadData = async () => {
     try {
-      const res = await api.get("/my/visits");
-      setVisits(res.data.data);
+      const [visitsRes, profileRes] = await Promise.all([
+        api.get("/my/visits"),
+        api.get("/my/profile")
+      ]);
+      setVisits(visitsRes.data.data);
+      setProfile(profileRes.data.data);
     } catch (error) {
-      console.error('Error loading visits:', error);
+      console.error('Error loading data:', error);
     } finally {
       setLoading(false);
     }
@@ -88,6 +96,13 @@ export default function PatientVisits() {
             <HbA1cChart data={chartData} />
           </div>
         </GlassCard>
+      )}
+
+      {/* AI Health Journey Analysis */}
+      {profile && (
+        <div className="mb-4">
+          <HealthJourneyAI patient={profile} visits={visits || []} />
+        </div>
       )}
 
       {/* Visit Timeline */}

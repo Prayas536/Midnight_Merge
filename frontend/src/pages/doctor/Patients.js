@@ -5,6 +5,7 @@ import api from "../../api/axios";
 import PageHeader from "../../components/layout/PageHeader";
 import GlassCard from "../../components/ui/GlassCard";
 import EmptyState from "../../components/ui/EmptyState";
+import ConfirmModal from "../../components/ui/ConfirmModal";
 
 const emptyForm = {
   name: "",
@@ -32,6 +33,8 @@ export default function Patients() {
   const [showModal, setShowModal] = useState(false);
   const [form, setForm] = useState(emptyForm);
   const [patientLogin, setPatientLogin] = useState(null);
+  const [deleteModal, setDeleteModal] = useState({ isOpen: false, patient: null });
+  const [patientsWithRisk, setPatientsWithRisk] = useState({});
 
   async function load() {
     setLoading(true);
@@ -67,12 +70,57 @@ export default function Patients() {
     }
   }
 
+  // Fetch latest risk for each patient from their most recent visit
+  useEffect(() => {
+    async function fetchRisks() {
+      const riskData = {};
+      for (const patient of patients) {
+        try {
+          const res = await api.get(`/patients/${patient._id}/visits`);
+          const visits = res.data.data || [];
+          if (visits.length > 0 && visits[0].prediction?.riskLabel) {
+            riskData[patient._id] = visits[0].prediction.riskLabel.toLowerCase();
+          }
+        } catch (e) {
+          // ignore errors for individual patients
+        }
+      }
+      setPatientsWithRisk(riskData);
+    }
+    if (patients.length > 0) {
+      fetchRisks();
+    }
+  }, [patients]);
+
   const getRiskLevel = (patient) => {
+    // First check if we have a risk from the latest visit prediction
+    if (patientsWithRisk[patient._id]) {
+      return patientsWithRisk[patient._id];
+    }
+    // Fallback to HbA1c-based calculation
     const hba1c = patient.HbA1cLevel;
     if (!hba1c) return 'unknown';
     if (hba1c >= 9) return 'high';
     if (hba1c >= 7) return 'medium';
     return 'low';
+  };
+
+  const handleDeleteClick = (patient) => {
+    setDeleteModal({ isOpen: true, patient });
+  };
+
+  const handleDeleteConfirm = async () => {
+    const patient = deleteModal.patient;
+    if (!patient) return;
+    try {
+      await api.delete(`/patients/${patient._id}`);
+      setMsg({ type: 'success', text: 'Patient deleted successfully' });
+      setDeleteModal({ isOpen: false, patient: null });
+      load();
+    } catch (err) {
+      setMsg({ type: 'error', text: err?.response?.data?.message || 'Delete failed' });
+      setDeleteModal({ isOpen: false, patient: null });
+    }
   };
 
   const getAgeGroup = (dob) => {
@@ -104,23 +152,29 @@ export default function Patients() {
   ];
 
   const filterChips = [
-    { key: 'risk', label: 'Risk Level', options: [
-      { value: 'all', label: 'All Risks' },
-      { value: 'low', label: 'Low' },
-      { value: 'medium', label: 'Medium' },
-      { value: 'high', label: 'High' }
-    ]},
-    { key: 'gender', label: 'Gender', options: [
-      { value: 'all', label: 'All Genders' },
-      { value: 'male', label: 'Male' },
-      { value: 'female', label: 'Female' }
-    ]},
-    { key: 'ageGroup', label: 'Age Group', options: [
-      { value: 'all', label: 'All Ages' },
-      { value: 'young', label: 'Under 30' },
-      { value: 'middle', label: '30-60' },
-      { value: 'senior', label: '60+' }
-    ]}
+    {
+      key: 'risk', label: 'Risk Level', options: [
+        { value: 'all', label: 'All Risks' },
+        { value: 'low', label: 'Low' },
+        { value: 'medium', label: 'Medium' },
+        { value: 'high', label: 'High' }
+      ]
+    },
+    {
+      key: 'gender', label: 'Gender', options: [
+        { value: 'all', label: 'All Genders' },
+        { value: 'male', label: 'Male' },
+        { value: 'female', label: 'Female' }
+      ]
+    },
+    {
+      key: 'ageGroup', label: 'Age Group', options: [
+        { value: 'all', label: 'All Ages' },
+        { value: 'young', label: 'Under 30' },
+        { value: 'middle', label: '30-60' },
+        { value: 'senior', label: '60+' }
+      ]
+    }
   ];
 
   return (
@@ -159,7 +213,7 @@ export default function Patients() {
               <select
                 className="form-select"
                 value={filters[chip.key]}
-                onChange={(e) => setFilters({...filters, [chip.key]: e.target.value})}
+                onChange={(e) => setFilters({ ...filters, [chip.key]: e.target.value })}
               >
                 {chip.options.map(option => (
                   <option key={option.value} value={option.value}>{option.label}</option>
@@ -173,11 +227,11 @@ export default function Patients() {
       {/* Messages */}
       {msg && (
         <motion.div
-          className="alert alert-danger"
+          className={`alert alert-${msg.type === 'success' ? 'success' : 'danger'}`}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          {msg}
+          {typeof msg === 'object' ? msg.text : msg}
         </motion.div>
       )}
 
@@ -239,47 +293,36 @@ export default function Patients() {
                       const riskLevel = getRiskLevel(patient);
                       const age = patient.dob ? new Date().getFullYear() - new Date(patient.dob).getFullYear() : 'N/A';
 
-                        return (
+                      return (
                         <tr key={patient._id}>
                           <td><code className="text-primary">{patient.patientId}</code></td>
                           <td className="fw-semibold">{patient.name}</td>
                           <td className="text-capitalize">{patient.gender}</td>
                           <td>{age}</td>
                           <td>
-                          <span className={`badge bg-${riskLevel === 'high' ? 'danger' : riskLevel === 'medium' ? 'warning' : 'success'}`}>
-                            {riskLevel.toUpperCase()}
-                          </span>
+                            <span className={`badge bg-${riskLevel === 'high' ? 'danger' : riskLevel === 'medium' ? 'warning' : 'success'}`}>
+                              {riskLevel.toUpperCase()}
+                            </span>
                           </td>
                           <td>{patient.HbA1cLevel ? `${patient.HbA1cLevel}%` : '-'}</td>
                           <td>
-                          <div className="btn-group btn-group-sm">
-                            <Link className="btn btn-outline-primary" to={`/doctor/patients/${patient._id}`}>
-                            <i className="fas fa-eye"></i>
-                            </Link>
-                            <Link className="btn btn-outline-secondary" to={`/doctor/patients/${patient._id}/add-visit`}>
-                            <i className="fas fa-edit"></i>
-                            </Link>
-                            <button 
-                            className="btn btn-outline-danger"
-                            onClick={() => {
-                              if (window.confirm(`Delete patient ${patient.name}?`)) {
-                              api.delete(`/patients/${patient._id}`)
-                                .then(() => {
-                                setMsg("Patient deleted successfully");
-                                load();
-                                })
-                                .catch((err) => {
-                                setMsg(err?.response?.data?.message || "Delete failed");
-                                });
-                              }
-                            }}
-                            >
-                            <i className="fas fa-trash"></i>
-                            </button>
-                          </div>
+                            <div className="btn-group btn-group-sm">
+                              <Link className="btn btn-outline-primary" to={`/doctor/patients/${patient._id}`}>
+                                <i className="fas fa-eye"></i>
+                              </Link>
+                              <Link className="btn btn-outline-secondary" to={`/doctor/patients/${patient._id}/add-visit`}>
+                                <i className="fas fa-edit"></i>
+                              </Link>
+                              <button
+                                className="btn btn-outline-danger"
+                                onClick={() => handleDeleteClick(patient)}
+                              >
+                                <i className="fas fa-trash"></i>
+                              </button>
+                            </div>
                           </td>
                         </tr>
-                        );
+                      );
                     })}
                   </tbody>
                 </table>
@@ -474,6 +517,20 @@ export default function Patients() {
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmModal
+        isOpen={deleteModal.isOpen}
+        onClose={() => setDeleteModal({ isOpen: false, patient: null })}
+        onConfirm={handleDeleteConfirm}
+        title="Delete Patient"
+        message={`Are you sure you want to delete ${deleteModal.patient?.name}? This action cannot be undone and will remove all associated visits and records.`}
+        confirmText="Delete Patient"
+        cancelText="Cancel"
+        confirmVariant="danger"
+        icon="fas fa-trash-alt"
+      />
     </motion.div>
   );
 }
+

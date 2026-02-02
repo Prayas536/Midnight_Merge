@@ -50,7 +50,7 @@ const chatWithAI = async (req, res) => {
 
   } catch (error) {
     console.error("❌ AI Chat Error:", error.message);
-    
+
     if (error.response) {
       // Server responded with error status
       console.error("   Status:", error.response.status);
@@ -92,4 +92,101 @@ const chatWithAI = async (req, res) => {
   }
 };
 
-module.exports = { chatWithAI };
+const generateNotes = async (req, res) => {
+  try {
+    const { patient_data, current_metrics, visit_history } = req.body;
+
+    if (!patient_data || !current_metrics) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: patient_data or current_metrics"
+      });
+    }
+
+    const mlServiceUrl = process.env.ML_SERVICE_URL || "http://localhost:8000";
+
+    console.log("🤖 AI Notes Generation Request for:", patient_data.name);
+
+    const response = await axios.post(
+      `${mlServiceUrl}/ai/generate-notes`,
+      { patient_data, current_metrics, visit_history: visit_history || [] },
+      { timeout: 30000 }
+    );
+
+    console.log("✅ AI Notes generated");
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        notes: response.data.notes,
+        recommendations: response.data.recommendations
+      }
+    });
+
+  } catch (error) {
+    console.error("❌ AI Notes Generation Error:", error.message);
+
+    if (error.code === "ECONNREFUSED") {
+      return res.status(503).json({
+        success: false,
+        message: "ML service is offline"
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: error.response?.data?.detail || error.message || "Notes generation failed"
+    });
+  }
+};
+
+const analyzeHealthJourney = async (req, res) => {
+  try {
+    const { patient_data, all_visits } = req.body;
+
+    if (!patient_data || !all_visits) {
+      return res.status(400).json({
+        success: false,
+        message: "Missing required fields: patient_data or all_visits"
+      });
+    }
+
+    const mlServiceUrl = process.env.ML_SERVICE_URL || "http://localhost:8000";
+
+    console.log("🤖 Health Journey Analysis Request for:", patient_data.name);
+
+    const response = await axios.post(
+      `${mlServiceUrl}/ai/health-journey-analysis`,
+      { patient_data, all_visits },
+      { timeout: 45000 }
+    );
+
+    console.log("✅ Health Journey Analysis complete");
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        analysis: response.data.analysis,
+        visits_analyzed: response.data.visits_analyzed
+      }
+    });
+
+  } catch (error) {
+    console.error("❌ Health Journey Analysis Error:", error.message);
+
+    if (error.code === "ECONNREFUSED") {
+      return res.status(503).json({
+        success: false,
+        message: "ML service is offline"
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: error.response?.data?.detail || error.message || "Analysis failed"
+    });
+  }
+};
+
+module.exports = { chatWithAI, generateNotes, analyzeHealthJourney };
+

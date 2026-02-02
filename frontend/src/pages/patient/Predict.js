@@ -78,7 +78,7 @@ export default function PatientPredict() {
       };
       const res = await api.post("/predictions", payload);
       setResult(res.data.data);
-      
+
       // Save prediction context for AI chat
       localStorage.setItem(
         "prediction_context",
@@ -102,7 +102,7 @@ export default function PatientPredict() {
 
   const handleOpenAIChat = () => {
     setShowPostPredictionModal(false);
-    navigate("/patient/ai-chat");
+    navigate("/patient/ai-chat", { state: { fromPrediction: true } });
   };
 
   const isFormValid = formData.age && formData.bmi && formData.HbA1c_level && formData.blood_glucose_level;

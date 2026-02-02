@@ -16,8 +16,16 @@ export default function DoctorDashboard() {
     visitsThisMonth: 0,
     avgHbA1c: 0,
     predictionsRun: 0,
+    deltas: {
+      patients: 0,
+      visits: 0,
+      hba1c: 0,
+      predictions: 0
+    }
   });
   const [recentPatients, setRecentPatients] = useState([]);
+  const [chartData, setChartData] = useState(null);
+  const [chartType, setChartType] = useState('HbA1c');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -28,33 +36,47 @@ export default function DoctorDashboard() {
 
   const loadDashboardData = async () => {
     try {
-      const [patientsRes, visitsRes] = await Promise.all([
+      const [statsRes, patientsRes, trendsRes] = await Promise.all([
+        api.get("/dashboard/stats"),
         api.get("/patients"),
-        api.get("/my/visits"), // Assuming this endpoint exists
+        api.get("/dashboard/trends?months=6")
       ]);
 
+      const dashboardStats = statsRes.data.data;
       const patients = patientsRes.data.data || [];
-      const visits = visitsRes.data.data || [];
-
-      // Calculate stats
-      const thisMonth = new Date();
-      thisMonth.setDate(1);
-      const visitsThisMonth = visits.filter(v => new Date(v.date) >= thisMonth).length;
-
-      const avgHbA1c = patients.length > 0
-        ? patients.reduce((sum, p) => sum + (p.baselineMetrics?.hba1c || 0), 0) / patients.length
-        : 0;
+      const trends = trendsRes.data.data || [];
 
       setStats({
-        totalPatients: patients.length,
-        visitsThisMonth,
-        avgHbA1c: avgHbA1c.toFixed(1),
-        predictionsRun: visits.filter(v => v.prediction).length,
+        totalPatients: dashboardStats.totalPatients,
+        visitsThisMonth: dashboardStats.visitsThisMonth,
+        avgHbA1c: dashboardStats.avgHbA1c,
+        predictionsRun: dashboardStats.predictionsRun,
+        deltas: dashboardStats.deltas
       });
 
       setRecentPatients(patients.slice(0, 5));
+
+      // Prepare chart data
+      if (trends.length > 0) {
+        setChartData({
+          labels: trends.map(t => t.month),
+          datasets: {
+            HbA1c: trends.map(t => t.avgHbA1c),
+            Glucose: trends.map(t => t.avgGlucose),
+            BMI: trends.map(t => t.avgBmi)
+          }
+        });
+      }
     } catch (error) {
       console.error('Error loading dashboard data:', error);
+      // Fallback to empty data
+      setStats({
+        totalPatients: 0,
+        visitsThisMonth: 0,
+        avgHbA1c: 0,
+        predictionsRun: 0,
+        deltas: { patients: 0, visits: 0, hba1c: 0, predictions: 0 }
+      });
     } finally {
       setLoading(false);
     }
@@ -80,6 +102,14 @@ export default function DoctorDashboard() {
     );
   }
 
+  const getCurrentChartData = () => {
+    if (!chartData) return null;
+    return {
+      labels: chartData.labels,
+      values: chartData.datasets[chartType]
+    };
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -95,86 +125,141 @@ export default function DoctorDashboard() {
       {/* Stats Cards */}
       <div className="row g-4 mb-4">
         <div className="col-md-3">
-          <StatCard
-            icon="fas fa-users"
-            title="Total Patients"
-            value={stats.totalPatients}
-            delta={12} // Mock delta
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            <StatCard
+              icon="fas fa-users"
+              title="Total Patients"
+              value={stats.totalPatients}
+              delta={stats.deltas.patients}
+            />
+          </motion.div>
         </div>
         <div className="col-md-3">
-          <StatCard
-            icon="fas fa-calendar-check"
-            title="Visits This Month"
-            value={stats.visitsThisMonth}
-            delta={8}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <StatCard
+              icon="fas fa-calendar-check"
+              title="Visits This Month"
+              value={stats.visitsThisMonth}
+              delta={stats.deltas.visits}
+            />
+          </motion.div>
         </div>
         <div className="col-md-3">
-          <StatCard
-            icon="fas fa-chart-line"
-            title="Avg HbA1c"
-            value={`${stats.avgHbA1c}%`}
-            delta={-5}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <StatCard
+              icon="fas fa-chart-line"
+              title="Avg HbA1c"
+              value={`${stats.avgHbA1c}%`}
+              delta={stats.deltas.hba1c}
+            />
+          </motion.div>
         </div>
         <div className="col-md-3">
-          <StatCard
-            icon="fas fa-brain"
-            title="Predictions Run"
-            value={stats.predictionsRun}
-            delta={15}
-          />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            <StatCard
+              icon="fas fa-brain"
+              title="Predictions Run"
+              value={stats.predictionsRun}
+              delta={stats.deltas.predictions}
+            />
+          </motion.div>
         </div>
       </div>
 
       <div className="row g-4">
         {/* Recent Patients */}
         <div className="col-lg-4">
-          <GlassCard className="p-4">
-            <h5 className="mb-3">
-              <i className="fas fa-users me-2"></i>Recent Patients
-            </h5>
-            {recentPatients.length > 0 ? (
-              <div className="list-group list-group-flush">
-                {recentPatients.map((patient) => (
-                  <Link
-                    key={patient._id}
-                    to={`/doctor/patients/${patient._id}`}
-                    className="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0"
-                  >
-                    <div>
-                      <div className="fw-semibold">{patient.name}</div>
-                      <small className="text-muted">ID: {patient.patientId}</small>
-                    </div>
-                    <i className="fas fa-chevron-right text-muted"></i>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted small">No patients yet</p>
-            )}
-            <Link to="/doctor/patients" className="btn btn-outline-primary btn-sm mt-3">
-              View All Patients
-            </Link>
-          </GlassCard>
+          <motion.div
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <GlassCard className="p-4">
+              <h5 className="mb-3">
+                <i className="fas fa-users me-2"></i>Recent Patients
+              </h5>
+              {recentPatients.length > 0 ? (
+                <div className="list-group list-group-flush">
+                  {recentPatients.map((patient, index) => (
+                    <motion.div
+                      key={patient._id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6 + index * 0.1 }}
+                    >
+                      <Link
+                        to={`/doctor/patients/${patient._id}`}
+                        className="list-group-item list-group-item-action d-flex justify-content-between align-items-center px-0"
+                      >
+                        <div>
+                          <div className="fw-semibold">{patient.name}</div>
+                          <small className="text-muted">ID: {patient.patientId}</small>
+                        </div>
+                        <i className="fas fa-chevron-right text-muted"></i>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted small">No patients yet</p>
+              )}
+              <Link to="/doctor/patients" className="btn btn-outline-primary btn-sm mt-3">
+                View All Patients
+              </Link>
+            </GlassCard>
+          </motion.div>
         </div>
 
         {/* Trends Chart */}
         <div className="col-lg-8">
-          <GlassCard className="p-4">
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <h5 className="mb-0">
-                <i className="fas fa-chart-line me-2"></i>HbA1c Trends
-              </h5>
-              <div className="btn-group btn-group-sm">
-                <button className="btn btn-outline-primary active">HbA1c</button>
-                <button className="btn btn-outline-primary">Glucose</button>
-                <button className="btn btn-outline-primary">BMI</button>
+          <motion.div
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5 }}
+          >
+            <GlassCard className="p-4">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h5 className="mb-0">
+                  <i className="fas fa-chart-line me-2"></i>{chartType} Trends
+                </h5>
+                <div className="btn-group btn-group-sm">
+                  {['HbA1c', 'Glucose', 'BMI'].map(type => (
+                    <button
+                      key={type}
+                      className={`btn btn-outline-primary ${chartType === type ? 'active' : ''}`}
+                      onClick={() => setChartType(type)}
+                    >
+                      {type}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
-            <HbA1cChart />
-          </GlassCard>
+              {chartData && getCurrentChartData() ? (
+                <HbA1cChart data={getCurrentChartData()} />
+              ) : (
+                <div className="text-center py-5">
+                  <i className="fas fa-chart-line fs-1 text-muted mb-3"></i>
+                  <p className="text-muted">Add visits with metrics to see trends</p>
+                </div>
+              )}
+            </GlassCard>
+          </motion.div>
         </div>
       </div>
     </motion.div>

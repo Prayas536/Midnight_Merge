@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import ChatBubble from '../../components/chat/ChatBubble';
 import ChatInput from '../../components/chat/ChatInput';
 import SuggestionChips from '../../components/chat/SuggestionChips';
@@ -8,6 +8,7 @@ import api from '../../api/axios';
 
 export default function AIChat() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useContext(AuthContext);
   const messagesEndRef = useRef(null);
   const [messages, setMessages] = useState([]);
@@ -17,6 +18,7 @@ export default function AIChat() {
   const [predictionContext, setPredictionContext] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(true);
   const [noPredictionFound, setNoPredictionFound] = useState(false);
+  const [usingLocalContext, setUsingLocalContext] = useState(false);
 
   // Auto scroll to latest message
   const scrollToBottom = () => {
@@ -27,49 +29,55 @@ export default function AIChat() {
     scrollToBottom();
   }, [messages, loading]);
 
-  // Load latest prediction from database
+  // Load context based on source
   useEffect(() => {
-    const fetchLatestPrediction = async () => {
-      try {
-        setLoadingPrediction(true);
-        const response = await api.get('/my/latest-prediction');
-        
-        if (response.data?.success && response.data?.data) {
-          console.log('✅ Latest prediction fetched from database:', response.data.data);
-          setPredictionContext(response.data.data);
-          setError(null);
-          setNoPredictionFound(false);
-        } else {
-          // No prediction data - show system message
-          setNoPredictionFound(true);
-          const systemMessage = {
-            id: Date.now(),
-            type: 'assistant',
-            text: '📋 Load Latest Check',
-            isSystemMessage: true,
-            timestamp: new Date()
-          };
-          setMessages([systemMessage]);
+    const initChat = async () => {
+      setLoadingPrediction(true);
+
+      // 1. Check if we came from Prediction page
+      if (location.state?.fromPrediction) {
+        console.log('🔍 Coming from prediction page, checking local storage...');
+        const localContext = localStorage.getItem("prediction_context");
+        if (localContext) {
+          try {
+            const parsed = JSON.parse(localContext);
+            console.log('✅ Loaded context from LocalStorage:', parsed);
+            setPredictionContext(parsed);
+            setUsingLocalContext(true);
+            setNoPredictionFound(false);
+            setLoadingPrediction(false);
+            return;
+          } catch (e) {
+            console.error("Error parsing local context", e);
+          }
         }
-      } catch (err) {
-        console.error('Error fetching prediction:', err);
-        // Show system message on any error (no prediction found)
-        setNoPredictionFound(true);
-        const systemMessage = {
-          id: Date.now(),
-          type: 'assistant',
-          text: '📋 Load Latest Check',
-          isSystemMessage: true,
-          timestamp: new Date()
-        };
-        setMessages([systemMessage]);
-      } finally {
-        setLoadingPrediction(false);
       }
+
+      // 2. If not from prediction, or local storage failed, check if we should auto-load or show option
+      // User requested: "Sidebar -> Quick Question bubble 'Use Last Checkup Data'"
+      // This implies we DO NOT auto-load DB data immediately if coming from sidebar.
+
+      console.log('ℹ️ Not from prediction page (or local load failed). Showing option to load DB data.');
+      setLoadingPrediction(false);
+      setNoPredictionFound(true);
+
+      // We don't set a system message here yet, we'll let the render logic handle the "No Prediction Found" state
+      // which shows the buttons.
+      // Actually, existing logic uses system message for "Load Latest Check". Let's reuse or adapt that.
+
+      const systemMessage = {
+        id: Date.now(),
+        type: 'assistant',
+        text: '👋 Hi! I can help you with your health questions.',
+        isSystemMessage: true,
+        timestamp: new Date()
+      };
+      setMessages([systemMessage]);
     };
 
-    fetchLatestPrediction();
-  }, []);
+    initChat();
+  }, [location.state]);
+
 
   // Send initial greeting when prediction context is loaded
   useEffect(() => {
@@ -89,9 +97,9 @@ export default function AIChat() {
   // Handle sending message
   const handleSendMessage = async (userMessage) => {
     if (!userMessage.trim() || !predictionContext) {
-      console.warn('❌ Cannot send message:', { 
-        hasMessage: !!userMessage.trim(), 
-        hasContext: !!predictionContext 
+      console.warn('❌ Cannot send message:', {
+        hasMessage: !!userMessage.trim(),
+        hasContext: !!predictionContext
       });
       return;
     }
@@ -193,7 +201,7 @@ export default function AIChat() {
     try {
       setLoadingPrediction(true);
       const response = await api.get('/my/latest-prediction');
-      
+
       if (response.data?.success && response.data?.data) {
         console.log('✅ Latest prediction loaded:', response.data.data);
         setPredictionContext(response.data.data);
@@ -241,32 +249,34 @@ export default function AIChat() {
 
         <div className="ai-chat-messages">
           <ChatBubble
-            message="📋 Load Latest Check"
+            message="👋 Hi! I can help you answer health questions based on your diabetes risk assessment. I can use your latest checkup data to provide personalized answers."
             isUser={false}
             timestamp={new Date()}
           />
           <div className="system-message-actions">
-            <button 
-              className="btn btn-primary me-2"
+            <button
+              className="chip-btn"
+              style={{ fontSize: '0.95rem', padding: '10px 20px', borderRadius: '20px', border: '1px solid var(--primary)', background: 'var(--surface)', color: 'var(--primary)' }}
               onClick={handleLoadLatestCheck}
               disabled={loadingPrediction}
             >
               {loadingPrediction ? (
                 <>
-                  <i className="fas fa-spinner fa-spin me-2"></i>Loading...
+                  <i className="fas fa-spinner fa-spin me-2"></i>Loading data...
                 </>
               ) : (
                 <>
-                  <i className="fas fa-sync me-2"></i>Load Latest Check
+                  <i className="fas fa-file-medical me-2"></i>Use Last Checkup Data
                 </>
               )}
             </button>
-            <button 
-              className="btn btn-outline-secondary"
+            <button
+              className="chip-btn ms-2"
+              style={{ fontSize: '0.95rem', padding: '10px 20px', borderRadius: '20px', border: '1px solid var(--muted)', background: 'transparent', color: 'var(--muted)' }}
               onClick={handleGoToPredict}
               disabled={loadingPrediction}
             >
-              <i className="fas fa-brain me-2"></i>New Prediction
+              <i className="fas fa-plus me-2"></i>New Prediction
             </button>
           </div>
         </div>
@@ -285,7 +295,7 @@ export default function AIChat() {
           </div>
         </div>
         <div className="ai-chat-actions">
-          <button 
+          <button
             className="btn-icon-small"
             onClick={handleClearChat}
             title="Clear chat"
@@ -293,7 +303,7 @@ export default function AIChat() {
           >
             <i className="fas fa-trash"></i>
           </button>
-          <button 
+          <button
             className="btn-icon-small"
             onClick={handleGoToPredict}
             title="Go to prediction"
@@ -326,15 +336,15 @@ export default function AIChat() {
 
       <div className="ai-chat-suggestions">
         {showSuggestions && !loading && messages.length >= 1 && (
-          <SuggestionChips 
-            onSelect={handleSuggestionClick} 
+          <SuggestionChips
+            onSelect={handleSuggestionClick}
             disabled={loading}
           />
         )}
       </div>
 
-      <ChatInput 
-        onSend={handleSendMessage} 
+      <ChatInput
+        onSend={handleSendMessage}
         disabled={loading || !predictionContext}
         placeholder="Ask about your health..."
       />
@@ -343,7 +353,7 @@ export default function AIChat() {
         <div className="ai-chat-error-banner">
           <i className="fas fa-exclamation-triangle"></i>
           <span>{error}</span>
-          <button 
+          <button
             className="btn-close-error"
             onClick={() => setError(null)}
           >

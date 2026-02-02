@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 
-export default function SideNav({ collapsed, open, onClose }) {
+export default function SideNav({ collapsed, open, onClose, onToggle }) {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -32,8 +32,7 @@ export default function SideNav({ collapsed, open, onClose }) {
         <div className="sidebar-header">
           <div className="sidebar-brand">
             <i className="fas fa-stethoscope"></i>
-            {!collapsed && !open && <span>Diabetes PMS</span>}
-            {open && <span>Diabetes PMS</span>}
+            {(!collapsed || open) && <span className="ms-2">Diabetes PMS</span>}
           </div>
         </div>
         <div className="sidebar-content">
@@ -44,29 +43,38 @@ export default function SideNav({ collapsed, open, onClose }) {
                   to={item.to}
                   className={({ isActive }) => `nav-link d-flex align-items-center ${isActive ? 'active' : ''}`}
                   onClick={onClose}
+                  data-tooltip={item.label}
+                  title={collapsed && !open ? item.label : ''}
                 >
                   <i className={`${item.icon} ${collapsed && !open ? '' : 'me-3'}`}></i>
                   {(open || !collapsed) && <span>{item.label}</span>}
                 </NavLink>
               </li>
-
             ))}
-            {/* logout button */}
-            
-            <li className="nav-item">
+
+            {/* Logout button */}
+            <li className="nav-item mt-auto">
               <button
                 className="nav-link d-flex align-items-center text-danger border-0 bg-transparent w-100"
                 onClick={() => { handleLogout(); onClose(); }}
                 title={collapsed && !open ? 'Logout' : ''}
+                data-tooltip="Logout"
               >
                 <i className={`fas fa-sign-out-alt ${collapsed && !open ? '' : 'me-3'}`}></i>
                 {(open || !collapsed) && <span>Logout</span>}
               </button>
             </li>
-
           </ul>
-
         </div>
+
+        {/* Toggle Button - only show on desktop */}
+        <button
+          className="sidebar-toggle-btn d-none d-md-flex"
+          onClick={onToggle}
+          title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          <i className={`fas fa-chevron-${collapsed ? 'right' : 'left'}`}></i>
+        </button>
       </nav>
     </>
   );
