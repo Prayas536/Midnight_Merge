@@ -132,9 +132,9 @@ export default function PatientProfile() {
                 <span className="text-muted">BMI</span>
                 <span className="fw-bold fs-5">{profile?.bmi || 'N/A'}</span>
               </div>
-              <div className="progress mt-2" style={{ height: '6px' }}>
+              <div className="progress mt-2 rounded-pill bg-light" style={{ height: '8px' }}>
                 <div
-                  className="progress-bar bg-primary"
+                  className="progress-bar bg-primary rounded-pill"
                   style={{ width: profile?.bmi ? `${Math.min((profile.bmi / 40) * 100, 100)}%` : '0%' }}
                 ></div>
               </div>
@@ -146,9 +146,9 @@ export default function PatientProfile() {
                 <span className="text-muted">HbA1c</span>
                 <span className="fw-bold fs-5">{profile?.HbA1cLevel ? `${profile.HbA1cLevel}%` : 'N/A'}</span>
               </div>
-              <div className="progress mt-2" style={{ height: '6px' }}>
+              <div className="progress mt-2 rounded-pill bg-light" style={{ height: '8px' }}>
                 <div
-                  className="progress-bar bg-info"
+                  className="progress-bar bg-info rounded-pill"
                   style={{ width: profile?.HbA1cLevel ? `${Math.min((profile.HbA1cLevel / 10) * 100, 100)}%` : '0%' }}
                 ></div>
               </div>
@@ -160,9 +160,9 @@ export default function PatientProfile() {
                 <span className="text-muted">Blood Glucose</span>
                 <span className="fw-bold fs-5">{profile?.bloodGlucoseLevel ? `${profile.bloodGlucoseLevel} mg/dL` : 'N/A'}</span>
               </div>
-              <div className="progress mt-2" style={{ height: '6px' }}>
+              <div className="progress mt-2 rounded-pill bg-light" style={{ height: '8px' }}>
                 <div
-                  className="progress-bar bg-success"
+                  className="progress-bar bg-success rounded-pill"
                   style={{ width: profile?.bloodGlucoseLevel ? `${Math.min((profile.bloodGlucoseLevel / 200) * 100, 100)}%` : '0%' }}
                 ></div>
               </div>
@@ -171,16 +171,20 @@ export default function PatientProfile() {
           </GlassCard>
 
           {/* Risk Assessment */}
-          <GlassCard className={`p-4 border-${riskInfo.color}`}>
-            <div className="text-center">
-              <div className={`risk-indicator mb-3 bg-${riskInfo.color}`}>
-                <i className="fas fa-exclamation-triangle fs-2 text-white"></i>
+          <GlassCard className="p-0 border-0 overflow-hidden text-white" style={{
+            background: riskInfo.level === 'High' ? 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)' :
+              riskInfo.level === 'Medium' ? 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' :
+                'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)'
+          }}>
+            <div className="p-4 text-center position-relative">
+              <div className="bg-white bg-opacity-25 rounded-circle p-3 d-inline-flex mb-3 shadow-sm">
+                <i className={`fas fa-exclamation-triangle fs-2 ${riskInfo.level === 'High' ? 'text-danger' : riskInfo.level === 'Medium' ? 'text-warning' : 'text-success'}`}></i>
               </div>
-              <h6 className="mb-2">Diabetes Risk Level</h6>
-              <span className={`badge bg-${riskInfo.color} fs-6 px-3 py-2`}>
+              <h6 className="mb-2 fw-bold text-dark opacity-75">Diabetes Risk Level</h6>
+              <span className={`badge bg-white bg-opacity-75 text-dark fs-6 px-4 py-2 rounded-pill shadow-sm`}>
                 {riskInfo.level} Risk
               </span>
-              <p className="text-muted small mt-3 mb-0">
+              <p className="text-dark small mt-3 mb-0 opacity-75 fw-semibold">
                 Based on your current BMI and HbA1c levels
               </p>
             </div>

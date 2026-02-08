@@ -208,22 +208,24 @@ export default function Predict() {
 
       {/* Tab Navigation */}
       <div className="mb-4">
-        <div className="btn-group w-100" role="group">
+        <GlassCard className="p-2 d-inline-flex bg-light bg-opacity-50 rounded-pill p-1 border">
           <button
             type="button"
-            className={`btn ${activeTab === "risk" ? "btn-primary" : "btn-outline-primary"}`}
+            className={`btn btn-sm rounded-pill px-4 fw-semibold transition-all ${activeTab === "risk" ? "bg-white shadow-sm text-primary" : "text-muted hover-text-dark"}`}
             onClick={() => setActiveTab("risk")}
+            style={{ minWidth: '180px' }}
           >
             <i className="fas fa-chart-line me-2"></i>Risk Assessment
           </button>
           <button
             type="button"
-            className={`btn ${activeTab === "medicine" ? "btn-primary" : "btn-outline-primary"}`}
+            className={`btn btn-sm rounded-pill px-4 fw-semibold transition-all ${activeTab === "medicine" ? "bg-white shadow-sm text-primary" : "text-muted hover-text-dark"}`}
             onClick={() => setActiveTab("medicine")}
+            style={{ minWidth: '180px' }}
           >
             <i className="fas fa-pills me-2"></i>Medicine Recommendation
           </button>
-        </div>
+        </GlassCard>
       </div>
 
       <AnimatePresence mode="wait">
@@ -788,22 +790,26 @@ export default function Predict() {
                       </h5>
 
                       {/* Medicine Card */}
-                      <div className="card bg-success bg-opacity-10 border-success mb-3">
-                        <div className="card-body text-center">
-                          <h6 className="card-subtitle mb-2 text-success">Recommended Medicine</h6>
-                          <h3 className="card-title mb-0">{medicineResult.recommendedMedicine}</h3>
+                      <div className="card border-0 shadow-sm mb-3 overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #11998e, #38ef7d)' }}>
+                        <div className="card-body text-center p-4">
+                          <div className="mb-2 bg-white bg-opacity-25 d-inline-block px-3 py-1 rounded-pill">
+                            <small className="fw-bold text-uppercase" style={{ letterSpacing: '1px' }}>Recommended Medicine</small>
+                          </div>
+                          <h3 className="card-title mb-0 display-6 fw-bold mt-2">{medicineResult.recommendedMedicine}</h3>
                         </div>
                       </div>
 
                       {/* Dosage Card */}
-                      <div className="card bg-primary bg-opacity-10 border-primary mb-3">
-                        <div className="card-body text-center">
-                          <h6 className="card-subtitle mb-2 text-primary">Dosage</h6>
-                          <h3 className="card-title mb-0">
-                            {medicineResult.dosageMg > 0 ? `${medicineResult.dosageMg} mg` : "N/A"}
-                          </h3>
+                      <div className="card border-0 shadow-sm mb-3 overflow-hidden text-white" style={{ background: 'linear-gradient(135deg, #667eea, #764ba2)' }}>
+                        <div className="card-body text-center p-4">
+                          <div className="mb-2 bg-white bg-opacity-25 d-inline-block px-3 py-1 rounded-pill">
+                            <small className="fw-bold text-uppercase" style={{ letterSpacing: '1px' }}>Recommended Dosage</small>
+                          </div>
+                          <h3 className="card-title mb-0 display-6 fw-bold mt-2">{medicineResult.dosage || 'Standard Dosage'}</h3>
+                          <small className="d-block mt-2 opacity-75">Take as prescribed by physician</small>
                         </div>
                       </div>
+
 
                       {/* Confidence */}
                       <div className="row g-2 mb-4">
@@ -861,56 +867,59 @@ export default function Predict() {
                 )}
               </div>
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </motion.div >
+        )
+        }
+      </AnimatePresence >
 
       {/* Coming Soon Modal */}
-      {showModal && (
-        <div className="modal fade show d-block" tabIndex="-1">
-          <div className="modal-dialog modal-dialog-centered">
-            <motion.div
-              className="modal-content"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-            >
-              <div className="modal-header">
-                <h5 className="modal-title">
-                  <i className="fas fa-tools me-2"></i>Coming Soon
-                </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowModal(false)}
-                ></button>
-              </div>
+      {
+        showModal && (
+          <div className="modal fade show d-block" tabIndex="-1">
+            <div className="modal-dialog modal-dialog-centered">
+              <motion.div
+                className="modal-content"
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+              >
+                <div className="modal-header">
+                  <h5 className="modal-title">
+                    <i className="fas fa-tools me-2"></i>Coming Soon
+                  </h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowModal(false)}
+                  ></button>
+                </div>
 
-              <div className="modal-body text-center">
-                <i className="fas fa-hourglass-half fs-1 text-primary mb-3"></i>
-                <p className="mb-1 fw-semibold">{featureName}</p>
-                <p className="text-muted mb-0">
-                  This feature is under development and will be available soon
-                </p>
-              </div>
+                <div className="modal-body text-center">
+                  <i className="fas fa-hourglass-half fs-1 text-primary mb-3"></i>
+                  <p className="mb-1 fw-semibold">{featureName}</p>
+                  <p className="text-muted mb-0">
+                    This feature is under development and will be available soon
+                  </p>
+                </div>
 
-              <div className="modal-footer">
-                <button
-                  className="btn btn-primary w-100"
-                  onClick={() => setShowModal(false)}
-                >
-                  Got it
-                </button>
-              </div>
-            </motion.div>
+                <div className="modal-footer">
+                  <button
+                    className="btn btn-primary w-100"
+                    onClick={() => setShowModal(false)}
+                  >
+                    Got it
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+
+            {/* Backdrop */}
+            <div
+              className="modal-backdrop fade show"
+              onClick={() => setShowModal(false)}
+            ></div>
           </div>
-
-          {/* Backdrop */}
-          <div
-            className="modal-backdrop fade show"
-            onClick={() => setShowModal(false)}
-          ></div>
-        </div>
-      )}
-    </motion.div>
+        )
+      }
+    </motion.div >
   );
 }
