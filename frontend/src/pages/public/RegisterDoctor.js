@@ -14,16 +14,16 @@ export default function RegisterDoctor() {
     confirmPassword: "",
     licenseNumber: "",
     specialization: "",
-    experience: ""
+    experience: "",
   });
   const [msg, setMsg] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -53,8 +53,12 @@ export default function RegisterDoctor() {
     }
   }
 
-  const isFormValid = formData.name && formData.email && formData.password &&
-                     formData.confirmPassword && formData.licenseNumber;
+  const isFormValid =
+    formData.name &&
+    formData.email &&
+    formData.password &&
+    formData.confirmPassword &&
+    formData.licenseNumber;
 
   return (
     <div className="auth-container">
@@ -123,7 +127,8 @@ export default function RegisterDoctor() {
 
               <div className="col-md-6">
                 <label className="form-label fw-semibold">
-                  <i className="fas fa-envelope me-2 text-primary"></i>Email Address *
+                  <i className="fas fa-envelope me-2 text-primary"></i>Email
+                  Address *
                 </label>
                 <input
                   type="email"
@@ -138,7 +143,8 @@ export default function RegisterDoctor() {
 
               <div className="col-md-6">
                 <label className="form-label fw-semibold">
-                  <i className="fas fa-id-card me-2 text-primary"></i>Medical License *
+                  <i className="fas fa-id-card me-2 text-primary"></i>Medical
+                  License *
                 </label>
                 <input
                   type="text"
@@ -153,7 +159,8 @@ export default function RegisterDoctor() {
 
               <div className="col-md-6">
                 <label className="form-label fw-semibold">
-                  <i className="fas fa-stethoscope me-2 text-primary"></i>Specialization
+                  <i className="fas fa-stethoscope me-2 text-primary"></i>
+                  Specialization
                 </label>
                 <select
                   className="form-select form-select-lg"
@@ -184,12 +191,15 @@ export default function RegisterDoctor() {
                   minLength="8"
                   placeholder="Minimum 8 characters"
                 />
-                <div className="form-text">Must be at least 8 characters long</div>
+                <div className="form-text">
+                  Must be at least 8 characters long
+                </div>
               </div>
 
               <div className="col-md-6">
                 <label className="form-label fw-semibold">
-                  <i className="fas fa-lock me-2 text-primary"></i>Confirm Password *
+                  <i className="fas fa-lock me-2 text-primary"></i>Confirm
+                  Password *
                 </label>
                 <input
                   type="password"
@@ -215,7 +225,8 @@ export default function RegisterDoctor() {
             >
               {loading ? (
                 <>
-                  <i className="fas fa-spinner fa-spin me-2"></i>Creating Account...
+                  <i className="fas fa-spinner fa-spin me-2"></i>Creating
+                  Account...
                 </>
               ) : (
                 <>
@@ -227,10 +238,7 @@ export default function RegisterDoctor() {
 
           <div className="text-center mt-4">
             <p className="text-muted mb-2">Already have an account?</p>
-            <Link
-              to="/login"
-              className="btn btn-outline-primary"
-            >
+            <Link to="/login" className="btn btn-outline-primary">
               <i className="fas fa-sign-in-alt me-2"></i>Sign In Instead
             </Link>
           </div>

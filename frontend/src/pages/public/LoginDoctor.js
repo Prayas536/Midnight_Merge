@@ -37,9 +37,12 @@ export default function LoginDoctor() {
         transition={{ duration: 1 }}
       >
         <div className="position-absolute top-0 start-0 w-100 h-100 primary-gradient opacity-90"></div>
-        <div className="position-absolute top-0 start-0 w-100 h-100" style={{
-          backgroundImage: `url("https://www.shutterstock.com/image-vector/male-doctor-smiling-happy-face-600nw-2481032615.jpg")`,
-        }}></div>
+        <div
+          className="position-absolute top-0 start-0 w-100 h-100"
+          style={{
+            backgroundImage: `url("https://www.shutterstock.com/image-vector/male-doctor-smiling-happy-face-600nw-2481032615.jpg")`,
+          }}
+        ></div>
         <motion.div
           className="text-center text-white p-5"
           initial={{ y: 50, opacity: 0 }}
@@ -78,7 +81,7 @@ export default function LoginDoctor() {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
           className="w-100"
-          style={{ maxWidth: '400px' }}
+          style={{ maxWidth: "400px" }}
         >
           <GlassCard className="p-4">
             <div className="text-center mb-4">
@@ -127,7 +130,9 @@ export default function LoginDoctor() {
                     className="btn btn-outline-secondary"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    <i className={`fas ${showPassword ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                    <i
+                      className={`fas ${showPassword ? "fa-eye-slash" : "fa-eye"}`}
+                    ></i>
                   </button>
                 </div>
               </div>
@@ -155,7 +160,10 @@ export default function LoginDoctor() {
             </form>
 
             <div className="text-center">
-              <Link to="/register-doctor" className="text-decoration-none d-block mb-2">
+              <Link
+                to="/register-doctor"
+                className="text-decoration-none d-block mb-2"
+              >
                 <i className="fas fa-user-plus me-1"></i>Register as Doctor
               </Link>
               <Link to="/patient-login" className="text-decoration-none">

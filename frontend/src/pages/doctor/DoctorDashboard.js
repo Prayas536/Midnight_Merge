@@ -20,12 +20,12 @@ export default function DoctorDashboard() {
       patients: 0,
       visits: 0,
       hba1c: 0,
-      predictions: 0
-    }
+      predictions: 0,
+    },
   });
   const [recentPatients, setRecentPatients] = useState([]);
   const [chartData, setChartData] = useState(null);
-  const [chartType, setChartType] = useState('HbA1c');
+  const [chartType, setChartType] = useState("HbA1c");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -39,7 +39,7 @@ export default function DoctorDashboard() {
       const [statsRes, patientsRes, trendsRes] = await Promise.all([
         api.get("/dashboard/stats"),
         api.get("/patients"),
-        api.get("/dashboard/trends?months=6")
+        api.get("/dashboard/trends?months=6"),
       ]);
 
       const dashboardStats = statsRes.data.data;
@@ -51,7 +51,7 @@ export default function DoctorDashboard() {
         visitsThisMonth: dashboardStats.visitsThisMonth,
         avgHbA1c: dashboardStats.avgHbA1c,
         predictionsRun: dashboardStats.predictionsRun,
-        deltas: dashboardStats.deltas
+        deltas: dashboardStats.deltas,
       });
 
       setRecentPatients(patients.slice(0, 5));
@@ -59,23 +59,23 @@ export default function DoctorDashboard() {
       // Prepare chart data
       if (trends.length > 0) {
         setChartData({
-          labels: trends.map(t => t.month),
+          labels: trends.map((t) => t.month),
           datasets: {
-            HbA1c: trends.map(t => t.avgHbA1c),
-            Glucose: trends.map(t => t.avgGlucose),
-            BMI: trends.map(t => t.avgBmi)
-          }
+            HbA1c: trends.map((t) => t.avgHbA1c),
+            Glucose: trends.map((t) => t.avgGlucose),
+            BMI: trends.map((t) => t.avgBmi),
+          },
         });
       }
     } catch (error) {
-      console.error('Error loading dashboard data:', error);
+      console.error("Error loading dashboard data:", error);
       // Fallback to empty data
       setStats({
         totalPatients: 0,
         visitsThisMonth: 0,
         avgHbA1c: 0,
         predictionsRun: 0,
-        deltas: { patients: 0, visits: 0, hba1c: 0, predictions: 0 }
+        deltas: { patients: 0, visits: 0, hba1c: 0, predictions: 0 },
       });
     } finally {
       setLoading(false);
@@ -89,7 +89,11 @@ export default function DoctorDashboard() {
     <Link key="predict" to="/doctor/predict" className="btn btn-success">
       <i className="fas fa-brain me-2"></i>Run Prediction
     </Link>,
-    <Link key="view-patients" to="/doctor/patients" className="btn btn-outline-primary">
+    <Link
+      key="view-patients"
+      to="/doctor/patients"
+      className="btn btn-outline-primary"
+    >
       <i className="fas fa-users me-2"></i>View Patients
     </Link>,
   ];
@@ -97,7 +101,7 @@ export default function DoctorDashboard() {
   if (loading || authLoading) {
     return (
       <div className="container">
-        <div className="skeleton" style={{ height: '400px' }}></div>
+        <div className="skeleton" style={{ height: "400px" }}></div>
       </div>
     );
   }
@@ -106,7 +110,7 @@ export default function DoctorDashboard() {
     if (!chartData) return null;
     return {
       labels: chartData.labels,
-      values: chartData.datasets[chartType]
+      values: chartData.datasets[chartType],
     };
   };
 
@@ -209,7 +213,9 @@ export default function DoctorDashboard() {
                       >
                         <div>
                           <div className="fw-semibold">{patient.name}</div>
-                          <small className="text-muted">ID: {patient.patientId}</small>
+                          <small className="text-muted">
+                            ID: {patient.patientId}
+                          </small>
                         </div>
                         <i className="fas fa-chevron-right text-muted"></i>
                       </Link>
@@ -219,7 +225,10 @@ export default function DoctorDashboard() {
               ) : (
                 <p className="text-muted small">No patients yet</p>
               )}
-              <Link to="/doctor/patients" className="btn btn-outline-primary btn-sm mt-3">
+              <Link
+                to="/doctor/patients"
+                className="btn btn-outline-primary btn-sm mt-3"
+              >
                 View All Patients
               </Link>
             </GlassCard>
@@ -236,13 +245,14 @@ export default function DoctorDashboard() {
             <GlassCard className="p-4">
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="mb-0">
-                  <i className="fas fa-chart-line me-2"></i>{chartType} Trends
+                  <i className="fas fa-chart-line me-2"></i>
+                  {chartType} Trends
                 </h5>
                 <div className="btn-group btn-group-sm">
-                  {['HbA1c', 'Glucose', 'BMI'].map(type => (
+                  {["HbA1c", "Glucose", "BMI"].map((type) => (
                     <button
                       key={type}
-                      className={`btn btn-outline-primary ${chartType === type ? 'active' : ''}`}
+                      className={`btn btn-outline-primary ${chartType === type ? "active" : ""}`}
                       onClick={() => setChartType(type)}
                     >
                       {type}
@@ -255,7 +265,9 @@ export default function DoctorDashboard() {
               ) : (
                 <div className="text-center py-5">
                   <i className="fas fa-chart-line fs-1 text-muted mb-3"></i>
-                  <p className="text-muted">Add visits with metrics to see trends</p>
+                  <p className="text-muted">
+                    Add visits with metrics to see trends
+                  </p>
                 </div>
               )}
             </GlassCard>

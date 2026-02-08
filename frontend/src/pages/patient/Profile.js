@@ -20,7 +20,7 @@ export default function PatientProfile() {
       const res = await api.get("/my/profile");
       setProfile(res.data.data);
     } catch (error) {
-      console.error('Error loading profile:', error);
+      console.error("Error loading profile:", error);
     } finally {
       setLoading(false);
     }
@@ -29,17 +29,17 @@ export default function PatientProfile() {
   if (loading) return <LoadingSpinner />;
 
   const getRiskLevel = (bmi, hba1c) => {
-    if (!bmi || !hba1c) return { level: 'Unknown', color: 'secondary' };
+    if (!bmi || !hba1c) return { level: "Unknown", color: "secondary" };
 
-    let risk = 'Low';
-    let color = 'success';
+    let risk = "Low";
+    let color = "success";
 
     if (bmi >= 30 || hba1c >= 6.5) {
-      risk = 'High';
-      color = 'danger';
+      risk = "High";
+      color = "danger";
     } else if (bmi >= 25 || hba1c >= 5.7) {
-      risk = 'Medium';
-      color = 'warning';
+      risk = "Medium";
+      color = "warning";
     }
 
     return { level: risk, color };
@@ -68,7 +68,9 @@ export default function PatientProfile() {
               </div>
               <div>
                 <h5 className="mb-1">{profile?.name}</h5>
-                <p className="text-muted mb-0">Patient ID: {profile?.patientId}</p>
+                <p className="text-muted mb-0">
+                  Patient ID: {profile?.patientId}
+                </p>
               </div>
             </div>
 
@@ -80,17 +82,25 @@ export default function PatientProfile() {
                 <div className="mb-3">
                   <small className="text-muted d-block">Date of Birth</small>
                   <span className="fw-semibold">
-                    {profile?.dob ? new Date(profile.dob).toLocaleDateString() : 'Not provided'}
+                    {profile?.dob
+                      ? new Date(profile.dob).toLocaleDateString()
+                      : "Not provided"}
                   </span>
                 </div>
                 <div className="mb-3">
                   <small className="text-muted d-block">Gender</small>
-                  <span className="fw-semibold text-capitalize">{profile?.gender || 'Not specified'}</span>
+                  <span className="fw-semibold text-capitalize">
+                    {profile?.gender || "Not specified"}
+                  </span>
                 </div>
                 <div>
                   <small className="text-muted d-block">Age</small>
                   <span className="fw-semibold">
-                    {profile?.dob ? new Date().getFullYear() - new Date(profile.dob).getFullYear() : 'Unknown'} years
+                    {profile?.dob
+                      ? new Date().getFullYear() -
+                        new Date(profile.dob).getFullYear()
+                      : "Unknown"}{" "}
+                    years
                   </span>
                 </div>
               </div>
@@ -101,19 +111,25 @@ export default function PatientProfile() {
                 </h6>
                 <div className="mb-3">
                   <small className="text-muted d-block">Hypertension</small>
-                  <span className={`badge ${profile?.hypertension ? 'bg-danger' : 'bg-success'}`}>
-                    {profile?.hypertension ? 'Yes' : 'No'}
+                  <span
+                    className={`badge ${profile?.hypertension ? "bg-danger" : "bg-success"}`}
+                  >
+                    {profile?.hypertension ? "Yes" : "No"}
                   </span>
                 </div>
                 <div className="mb-3">
                   <small className="text-muted d-block">Heart Disease</small>
-                  <span className={`badge ${profile?.heartDisease ? 'bg-danger' : 'bg-success'}`}>
-                    {profile?.heartDisease ? 'Yes' : 'No'}
+                  <span
+                    className={`badge ${profile?.heartDisease ? "bg-danger" : "bg-success"}`}
+                  >
+                    {profile?.heartDisease ? "Yes" : "No"}
                   </span>
                 </div>
                 <div>
                   <small className="text-muted d-block">Smoking History</small>
-                  <span className="fw-semibold text-capitalize">{profile?.smokingHistory || 'Not specified'}</span>
+                  <span className="fw-semibold text-capitalize">
+                    {profile?.smokingHistory || "Not specified"}
+                  </span>
                 </div>
               </div>
             </div>
@@ -130,12 +146,16 @@ export default function PatientProfile() {
             <div className="metric-item mb-3">
               <div className="d-flex justify-content-between align-items-center">
                 <span className="text-muted">BMI</span>
-                <span className="fw-bold fs-5">{profile?.bmi || 'N/A'}</span>
+                <span className="fw-bold fs-5">{profile?.bmi || "N/A"}</span>
               </div>
-              <div className="progress mt-2" style={{ height: '6px' }}>
+              <div className="progress mt-2" style={{ height: "6px" }}>
                 <div
                   className="progress-bar bg-primary"
-                  style={{ width: profile?.bmi ? `${Math.min((profile.bmi / 40) * 100, 100)}%` : '0%' }}
+                  style={{
+                    width: profile?.bmi
+                      ? `${Math.min((profile.bmi / 40) * 100, 100)}%`
+                      : "0%",
+                  }}
                 ></div>
               </div>
               <small className="text-muted">Normal: 18.5-24.9</small>
@@ -144,12 +164,18 @@ export default function PatientProfile() {
             <div className="metric-item mb-3">
               <div className="d-flex justify-content-between align-items-center">
                 <span className="text-muted">HbA1c</span>
-                <span className="fw-bold fs-5">{profile?.HbA1cLevel ? `${profile.HbA1cLevel}%` : 'N/A'}</span>
+                <span className="fw-bold fs-5">
+                  {profile?.HbA1cLevel ? `${profile.HbA1cLevel}%` : "N/A"}
+                </span>
               </div>
-              <div className="progress mt-2" style={{ height: '6px' }}>
+              <div className="progress mt-2" style={{ height: "6px" }}>
                 <div
                   className="progress-bar bg-info"
-                  style={{ width: profile?.HbA1cLevel ? `${Math.min((profile.HbA1cLevel / 10) * 100, 100)}%` : '0%' }}
+                  style={{
+                    width: profile?.HbA1cLevel
+                      ? `${Math.min((profile.HbA1cLevel / 10) * 100, 100)}%`
+                      : "0%",
+                  }}
                 ></div>
               </div>
               <small className="text-muted">Normal: &lt;5.7%</small>
@@ -158,12 +184,20 @@ export default function PatientProfile() {
             <div className="metric-item">
               <div className="d-flex justify-content-between align-items-center">
                 <span className="text-muted">Blood Glucose</span>
-                <span className="fw-bold fs-5">{profile?.bloodGlucoseLevel ? `${profile.bloodGlucoseLevel} mg/dL` : 'N/A'}</span>
+                <span className="fw-bold fs-5">
+                  {profile?.bloodGlucoseLevel
+                    ? `${profile.bloodGlucoseLevel} mg/dL`
+                    : "N/A"}
+                </span>
               </div>
-              <div className="progress mt-2" style={{ height: '6px' }}>
+              <div className="progress mt-2" style={{ height: "6px" }}>
                 <div
                   className="progress-bar bg-success"
-                  style={{ width: profile?.bloodGlucoseLevel ? `${Math.min((profile.bloodGlucoseLevel / 200) * 100, 100)}%` : '0%' }}
+                  style={{
+                    width: profile?.bloodGlucoseLevel
+                      ? `${Math.min((profile.bloodGlucoseLevel / 200) * 100, 100)}%`
+                      : "0%",
+                  }}
                 ></div>
               </div>
               <small className="text-muted">Fasting: 70-99 mg/dL</small>
@@ -201,7 +235,9 @@ export default function PatientProfile() {
                   <i className="fas fa-calendar-check text-primary me-3 mt-1"></i>
                   <div>
                     <h6 className="mb-1">Regular Check-ups</h6>
-                    <p className="text-muted small mb-0">Schedule quarterly visits with your healthcare provider</p>
+                    <p className="text-muted small mb-0">
+                      Schedule quarterly visits with your healthcare provider
+                    </p>
                   </div>
                 </div>
               </div>
@@ -210,7 +246,9 @@ export default function PatientProfile() {
                   <i className="fas fa-weight text-info me-3 mt-1"></i>
                   <div>
                     <h6 className="mb-1">Monitor BMI</h6>
-                    <p className="text-muted small mb-0">Maintain healthy weight through diet and exercise</p>
+                    <p className="text-muted small mb-0">
+                      Maintain healthy weight through diet and exercise
+                    </p>
                   </div>
                 </div>
               </div>
@@ -219,7 +257,9 @@ export default function PatientProfile() {
                   <i className="fas fa-vial text-success me-3 mt-1"></i>
                   <div>
                     <h6 className="mb-1">Blood Tests</h6>
-                    <p className="text-muted small mb-0">Regular HbA1c and glucose monitoring</p>
+                    <p className="text-muted small mb-0">
+                      Regular HbA1c and glucose monitoring
+                    </p>
                   </div>
                 </div>
               </div>

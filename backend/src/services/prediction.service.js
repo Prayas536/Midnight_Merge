@@ -31,7 +31,9 @@ function normalizePredictionResponse(raw) {
   // Some models return { prediction: 1, probability: 0.7 }
   if (raw.prediction != null) {
     let riskLabel = "Unknown";
-    const proba = raw.probability ?? raw.risk_percent / 100 ?? null;
+    const proba =
+      raw.probability ??
+      (raw.risk_percent != null ? raw.risk_percent / 100 : null);
     if (proba !== null) {
       if (proba >= 0.8) riskLabel = "High Risk";
       else if (proba >= 0.5) riskLabel = "Medium Risk";

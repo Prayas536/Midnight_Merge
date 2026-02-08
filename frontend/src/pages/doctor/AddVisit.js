@@ -16,7 +16,9 @@ export default function AddVisit() {
   const [msg, setMsg] = useState(null);
 
   // Form data
-  const [visitDate, setVisitDate] = useState(new Date().toISOString().slice(0, 10));
+  const [visitDate, setVisitDate] = useState(
+    new Date().toISOString().slice(0, 10)
+  );
   const [gender, setGender] = useState("Male");
   const [age, setAge] = useState("");
   const [hypertension, setHypertension] = useState(0);
@@ -40,7 +42,7 @@ export default function AddVisit() {
     { id: 1, title: "Patient Info", icon: "fas fa-user" },
     { id: 2, title: "Health Metrics", icon: "fas fa-heartbeat" },
     { id: 3, title: "Assessment", icon: "fas fa-stethoscope" },
-    { id: 4, title: "Review & Save", icon: "fas fa-check-circle" }
+    { id: 4, title: "Review & Save", icon: "fas fa-check-circle" },
   ];
 
   useEffect(() => {
@@ -54,7 +56,10 @@ export default function AddVisit() {
         const birthDate = new Date(p.dob);
         let calculatedAge = today.getFullYear() - birthDate.getFullYear();
         const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+        if (
+          monthDiff < 0 ||
+          (monthDiff === 0 && today.getDate() < birthDate.getDate())
+        ) {
           calculatedAge--;
         }
         setAge(calculatedAge.toString());
@@ -85,7 +90,8 @@ export default function AddVisit() {
         smoking_history: smokingHistory,
         bmi: bmi === "" ? null : Number(bmi),
         HbA1c_level: HbA1cLevel === "" ? null : Number(HbA1cLevel),
-        blood_glucose_level: bloodGlucoseLevel === "" ? null : Number(bloodGlucoseLevel),
+        blood_glucose_level:
+          bloodGlucoseLevel === "" ? null : Number(bloodGlucoseLevel),
       };
       const res = await api.post("/predictions", payload);
       setPrediction(res.data.data);
@@ -109,21 +115,22 @@ export default function AddVisit() {
         // No visits yet, that's fine
       }
 
-      const res = await api.post('/ai/generate-notes', {
+      const res = await api.post("/ai/generate-notes", {
         patient_data: {
           name: patient?.name,
           age: age,
-          gender: gender
+          gender: gender,
         },
         current_metrics: {
-          HbA1cLevel: HbA1cLevel === '' ? null : Number(HbA1cLevel),
-          bloodGlucoseLevel: bloodGlucoseLevel === '' ? null : Number(bloodGlucoseLevel),
-          bmi: bmi === '' ? null : Number(bmi),
+          HbA1cLevel: HbA1cLevel === "" ? null : Number(HbA1cLevel),
+          bloodGlucoseLevel:
+            bloodGlucoseLevel === "" ? null : Number(bloodGlucoseLevel),
+          bmi: bmi === "" ? null : Number(bmi),
           hypertension: Number(hypertension),
           heartDisease: Number(heartDisease),
-          smokingHistory: smokingHistory
+          smokingHistory: smokingHistory,
         },
-        visit_history: visitHistory
+        visit_history: visitHistory,
       });
 
       if (res.data.success && res.data.data) {
@@ -135,7 +142,7 @@ export default function AddVisit() {
         }
       }
     } catch (e) {
-      setMsg(e?.response?.data?.message || 'AI notes generation failed');
+      setMsg(e?.response?.data?.message || "AI notes generation failed");
     } finally {
       setAiNotesLoading(false);
     }
@@ -155,39 +162,50 @@ export default function AddVisit() {
           smokingHistory,
           bmi: bmi === "" ? null : Number(bmi),
           HbA1cLevel: HbA1cLevel === "" ? null : Number(HbA1cLevel),
-          bloodGlucoseLevel: bloodGlucoseLevel === "" ? null : Number(bloodGlucoseLevel),
+          bloodGlucoseLevel:
+            bloodGlucoseLevel === "" ? null : Number(bloodGlucoseLevel),
         },
         notes,
         recommendations,
-        prediction: savePrediction && prediction ? {
-          riskLabel: prediction.riskLabel,
-          riskScore: prediction.riskScore,
-          confidence: prediction.confidence,
-          modelVersion: prediction.modelVersion,
-          predictedAt: prediction.predictedAt,
-        } : undefined,
+        prediction:
+          savePrediction && prediction
+            ? {
+                riskLabel: prediction.riskLabel,
+                riskScore: prediction.riskScore,
+                confidence: prediction.confidence,
+                modelVersion: prediction.modelVersion,
+                predictedAt: prediction.predictedAt,
+              }
+            : undefined,
       };
       const response = await api.post(`/patients/${id}/visits`, payload);
       if (response.data.success) {
         nav(`/doctor/patients/${id}`);
       }
     } catch (e) {
-      console.error('Submit error:', e);
-      const errorMsg = e?.response?.data?.message || e?.message || "Save failed";
+      console.error("Submit error:", e);
+      const errorMsg =
+        e?.response?.data?.message || e?.message || "Save failed";
       setMsg(errorMsg);
     }
   }
 
-  const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, steps.length));
-  const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
+  const nextStep = () =>
+    setCurrentStep((prev) => Math.min(prev + 1, steps.length));
+  const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
   const canProceedToNext = () => {
     switch (currentStep) {
-      case 1: return visitDate && age;
-      case 2: return bmi || HbA1cLevel || bloodGlucoseLevel;
-      case 3: return true; // Assessment is optional
-      case 4: return true; // Review step
-      default: return false;
+      case 1:
+        return visitDate && age;
+      case 2:
+        return bmi || HbA1cLevel || bloodGlucoseLevel;
+      case 3:
+        return true; // Assessment is optional
+      case 4:
+        return true; // Review step
+      default:
+        return false;
     }
   };
 
@@ -221,12 +239,16 @@ export default function AddVisit() {
         <div className="stepper">
           {steps.map((step, index) => (
             <div key={step.id} className="stepper-item">
-              <div className={`stepper-circle ${currentStep >= step.id ? 'active' : ''}`}>
+              <div
+                className={`stepper-circle ${currentStep >= step.id ? "active" : ""}`}
+              >
                 <i className={step.icon}></i>
               </div>
               <div className="stepper-label">{step.title}</div>
               {index < steps.length - 1 && (
-                <div className={`stepper-line ${currentStep > step.id ? 'active' : ''}`}></div>
+                <div
+                  className={`stepper-line ${currentStep > step.id ? "active" : ""}`}
+                ></div>
               )}
             </div>
           ))}
@@ -245,7 +267,8 @@ export default function AddVisit() {
           {currentStep === 1 && (
             <GlassCard className="p-4">
               <h5 className="mb-4">
-                <i className="fas fa-user me-2 text-primary"></i>Patient Information
+                <i className="fas fa-user me-2 text-primary"></i>Patient
+                Information
               </h5>
               <div className="row g-3">
                 <div className="col-md-6">
@@ -299,7 +322,8 @@ export default function AddVisit() {
           {currentStep === 2 && (
             <GlassCard className="p-4">
               <h5 className="mb-4">
-                <i className="fas fa-heartbeat me-2 text-danger"></i>Health Metrics
+                <i className="fas fa-heartbeat me-2 text-danger"></i>Health
+                Metrics
               </h5>
               <div className="row g-3">
                 <div className="col-md-6">
@@ -402,7 +426,8 @@ export default function AddVisit() {
                 <GlassCard className="p-4">
                   <div className="d-flex justify-content-between align-items-center mb-4">
                     <h5 className="mb-0">
-                      <i className="fas fa-stethoscope me-2 text-info"></i>Clinical Assessment
+                      <i className="fas fa-stethoscope me-2 text-info"></i>
+                      Clinical Assessment
                     </h5>
                     <button
                       type="button"
@@ -424,7 +449,9 @@ export default function AddVisit() {
                     </button>
                   </div>
                   <div className="mb-4">
-                    <label className="form-label fw-semibold">Doctor's Notes</label>
+                    <label className="form-label fw-semibold">
+                      Doctor's Notes
+                    </label>
                     <textarea
                       className="form-control"
                       rows="4"
@@ -434,7 +461,9 @@ export default function AddVisit() {
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="form-label fw-semibold">Recommendations</label>
+                    <label className="form-label fw-semibold">
+                      Recommendations
+                    </label>
                     <textarea
                       className="form-control"
                       rows="4"
@@ -471,11 +500,13 @@ export default function AddVisit() {
                   >
                     {predLoading ? (
                       <>
-                        <i className="fas fa-spinner fa-spin me-2"></i>Analyzing...
+                        <i className="fas fa-spinner fa-spin me-2"></i>
+                        Analyzing...
                       </>
                     ) : (
                       <>
-                        <i className="fas fa-chart-line me-2"></i>Run Risk Assessment
+                        <i className="fas fa-chart-line me-2"></i>Run Risk
+                        Assessment
                       </>
                     )}
                   </button>
@@ -485,10 +516,14 @@ export default function AddVisit() {
                       animate={{ opacity: 1, scale: 1 }}
                       className="text-center"
                     >
-                      <RiskGauge riskScore={prediction.riskScore} riskLabel={prediction.riskLabel} />
+                      <RiskGauge
+                        riskScore={prediction.riskScore}
+                        riskLabel={prediction.riskLabel}
+                      />
                       <div className="mt-2">
                         <small className="text-muted">
-                          Confidence: {(prediction.confidence * 100).toFixed(1)}%
+                          Confidence: {(prediction.confidence * 100).toFixed(1)}
+                          %
                         </small>
                       </div>
                     </motion.div>
@@ -501,28 +536,56 @@ export default function AddVisit() {
           {currentStep === 4 && (
             <GlassCard className="p-4">
               <h5 className="mb-4">
-                <i className="fas fa-check-circle me-2 text-success"></i>Review & Save Visit
+                <i className="fas fa-check-circle me-2 text-success"></i>Review
+                & Save Visit
               </h5>
               <div className="review-section">
                 <div className="review-item">
                   <h6>Visit Information</h6>
                   <div className="review-grid">
-                    <div><strong>Patient:</strong> {patient?.name}</div>
-                    <div><strong>Date:</strong> {new Date(visitDate).toLocaleDateString()}</div>
-                    <div><strong>Age:</strong> {age} years</div>
-                    <div><strong>Gender:</strong> {gender}</div>
+                    <div>
+                      <strong>Patient:</strong> {patient?.name}
+                    </div>
+                    <div>
+                      <strong>Date:</strong>{" "}
+                      {new Date(visitDate).toLocaleDateString()}
+                    </div>
+                    <div>
+                      <strong>Age:</strong> {age} years
+                    </div>
+                    <div>
+                      <strong>Gender:</strong> {gender}
+                    </div>
                   </div>
                 </div>
 
                 <div className="review-item">
                   <h6>Health Metrics</h6>
                   <div className="review-grid">
-                    <div><strong>BMI:</strong> {bmi || 'Not recorded'}</div>
-                    <div><strong>HbA1c:</strong> {HbA1cLevel ? `${HbA1cLevel}%` : 'Not recorded'}</div>
-                    <div><strong>Blood Glucose:</strong> {bloodGlucoseLevel ? `${bloodGlucoseLevel} mg/dL` : 'Not recorded'}</div>
-                    <div><strong>Hypertension:</strong> {hypertension ? 'Yes' : 'No'}</div>
-                    <div><strong>Heart Disease:</strong> {heartDisease ? 'Yes' : 'No'}</div>
-                    <div><strong>Smoking:</strong> {smokingHistory}</div>
+                    <div>
+                      <strong>BMI:</strong> {bmi || "Not recorded"}
+                    </div>
+                    <div>
+                      <strong>HbA1c:</strong>{" "}
+                      {HbA1cLevel ? `${HbA1cLevel}%` : "Not recorded"}
+                    </div>
+                    <div>
+                      <strong>Blood Glucose:</strong>{" "}
+                      {bloodGlucoseLevel
+                        ? `${bloodGlucoseLevel} mg/dL`
+                        : "Not recorded"}
+                    </div>
+                    <div>
+                      <strong>Hypertension:</strong>{" "}
+                      {hypertension ? "Yes" : "No"}
+                    </div>
+                    <div>
+                      <strong>Heart Disease:</strong>{" "}
+                      {heartDisease ? "Yes" : "No"}
+                    </div>
+                    <div>
+                      <strong>Smoking:</strong> {smokingHistory}
+                    </div>
                   </div>
                 </div>
 
@@ -544,11 +607,14 @@ export default function AddVisit() {
                   <div className="review-item">
                     <h6>Risk Assessment</h6>
                     <div className="d-flex align-items-center">
-                      <span className={`badge bg-${prediction.riskLabel === 'High' ? 'danger' : prediction.riskLabel === 'Medium' ? 'warning' : 'success'} me-2`}>
+                      <span
+                        className={`badge bg-${prediction.riskLabel === "High" ? "danger" : prediction.riskLabel === "Medium" ? "warning" : "success"} me-2`}
+                      >
                         {prediction.riskLabel} Risk
                       </span>
                       <small className="text-muted">
-                        Score: {prediction.riskScore?.toFixed(2)} | Confidence: {(prediction.confidence * 100).toFixed(1)}%
+                        Score: {prediction.riskScore?.toFixed(2)} | Confidence:{" "}
+                        {(prediction.confidence * 100).toFixed(1)}%
                       </small>
                     </div>
                   </div>

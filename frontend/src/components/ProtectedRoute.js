@@ -10,7 +10,16 @@ export default function ProtectedRoute({ children, allow }) {
   if (!user) return <Navigate to="/login" replace />;
 
   if (allow && !allow.includes(user.userType)) {
-    return <Navigate to={user.userType === "doctor" ? "/doctor/dashboard" : "/patient/dashboard"} replace />;
+    return (
+      <Navigate
+        to={
+          user.userType === "doctor"
+            ? "/doctor/dashboard"
+            : "/patient/dashboard"
+        }
+        replace
+      />
+    );
   }
   return children;
 }

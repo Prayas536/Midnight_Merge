@@ -1,6 +1,6 @@
-import React from 'react';
+import React from "react";
 
-export default function GlassCard({ children, className = '', ...props }) {
+export default function GlassCard({ children, className = "", ...props }) {
   return (
     <div className={`glass-card ${className}`} {...props}>
       {children}

@@ -3,7 +3,6 @@ const cors = require("cors");
 const helmet = require("helmet");
 const cookieParser = require("cookie-parser");
 const { env } = require("./config/env");
-const { connectDB } = require("./config/db");
 const { logger } = require("./middleware/logger");
 const { notFound } = require("./middleware/notFound");
 const { errorHandler } = require("./middleware/errorHandler");
@@ -48,11 +47,5 @@ app.use("/api/dashboard", dashboardRoutes);
 // 404 + error handler
 app.use(notFound);
 app.use(errorHandler);
-
-// Connect DB on startup
-connectDB().catch((e) => {
-  console.error("❌Failed to connect DB:", e.message);
-  process.exit(1);
-});
 
 module.exports = app;

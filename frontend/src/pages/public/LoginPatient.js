@@ -122,7 +122,8 @@ export default function LoginPatient() {
                 </>
               ) : (
                 <>
-                  <i className="fas fa-sign-in-alt me-2"></i>Access My Health Records
+                  <i className="fas fa-sign-in-alt me-2"></i>Access My Health
+                  Records
                 </>
               )}
             </motion.button>
@@ -130,10 +131,7 @@ export default function LoginPatient() {
 
           <div className="text-center">
             <p className="text-muted mb-2">Are you a healthcare provider?</p>
-            <Link
-              to="/login"
-              className="btn btn-outline-primary"
-            >
+            <Link to="/login" className="btn btn-outline-primary">
               <i className="fas fa-user-md me-2"></i>Doctor Login
             </Link>
           </div>

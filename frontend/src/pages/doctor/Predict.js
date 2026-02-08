@@ -5,7 +5,6 @@ import PageHeader from "../../components/layout/PageHeader";
 import GlassCard from "../../components/ui/GlassCard";
 import RiskGauge from "../../components/charts/RiskGauge";
 
-
 export default function Predict() {
   const [showModal, setShowModal] = useState(false);
   const [featureName, setFeatureName] = useState("");
@@ -21,7 +20,7 @@ export default function Predict() {
     smoking_history: "never",
     bmi: "",
     HbA1c_level: "",
-    blood_glucose_level: ""
+    blood_glucose_level: "",
   });
   const [msg, setMsg] = useState(null);
   const [result, setResult] = useState(null);
@@ -29,9 +28,9 @@ export default function Predict() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
@@ -48,7 +47,7 @@ export default function Predict() {
         heart_disease: Number(formData.heart_disease),
         bmi: Number(formData.bmi),
         HbA1c_level: Number(formData.HbA1c_level),
-        blood_glucose_level: Number(formData.blood_glucose_level)
+        blood_glucose_level: Number(formData.blood_glucose_level),
       };
       const res = await api.post("/predictions", payload);
       setResult(res.data.data);
@@ -59,7 +58,11 @@ export default function Predict() {
     }
   }
 
-  const isFormValid = formData.age && formData.bmi && formData.HbA1c_level && formData.blood_glucose_level;
+  const isFormValid =
+    formData.age &&
+    formData.bmi &&
+    formData.HbA1c_level &&
+    formData.blood_glucose_level;
 
   return (
     <motion.div
@@ -133,7 +136,9 @@ export default function Predict() {
                   </select>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">Heart Disease</label>
+                  <label className="form-label fw-semibold">
+                    Heart Disease
+                  </label>
                   <select
                     name="heart_disease"
                     className="form-select"
@@ -145,7 +150,9 @@ export default function Predict() {
                   </select>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">Smoking History</label>
+                  <label className="form-label fw-semibold">
+                    Smoking History
+                  </label>
                   <select
                     name="smoking_history"
                     className="form-select"
@@ -176,7 +183,9 @@ export default function Predict() {
                   <div className="form-text">Body Mass Index</div>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">HbA1c Level (%)</label>
+                  <label className="form-label fw-semibold">
+                    HbA1c Level (%)
+                  </label>
                   <input
                     name="HbA1c_level"
                     type="number"
@@ -192,7 +201,9 @@ export default function Predict() {
                   <div className="form-text">Glycated Hemoglobin</div>
                 </div>
                 <div className="col-md-6">
-                  <label className="form-label fw-semibold">Blood Glucose (mg/dL)</label>
+                  <label className="form-label fw-semibold">
+                    Blood Glucose (mg/dL)
+                  </label>
                   <input
                     name="blood_glucose_level"
                     type="number"
@@ -217,11 +228,13 @@ export default function Predict() {
               >
                 {loading ? (
                   <>
-                    <i className="fas fa-spinner fa-spin me-2"></i>Analyzing Risk...
+                    <i className="fas fa-spinner fa-spin me-2"></i>Analyzing
+                    Risk...
                   </>
                 ) : (
                   <>
-                    <i className="fas fa-brain me-2"></i>Calculate Risk Assessment
+                    <i className="fas fa-brain me-2"></i>Calculate Risk
+                    Assessment
                   </>
                 )}
               </motion.button>
@@ -237,7 +250,9 @@ export default function Predict() {
                 <i className="fas fa-chart-pie fs-1 text-muted"></i>
               </div>
               <h5>Risk Assessment Preview</h5>
-              <p className="text-muted">Fill out the form to see the risk analysis</p>
+              <p className="text-muted">
+                Fill out the form to see the risk analysis
+              </p>
               {!isFormValid && (
                 <div className="mt-3">
                   <small className="text-warning">
@@ -255,24 +270,38 @@ export default function Predict() {
             >
               <GlassCard className="p-4">
                 <h5 className="text-center mb-4">
-                  <i className="fas fa-chart-line me-2"></i>Risk Assessment Results
+                  <i className="fas fa-chart-line me-2"></i>Risk Assessment
+                  Results
                 </h5>
 
                 <div className="mb-4">
-                  <RiskGauge riskScore={result.riskScore} riskLabel={result.riskLabel} />
+                  <RiskGauge
+                    riskScore={result.riskScore}
+                    riskLabel={result.riskLabel}
+                  />
                 </div>
 
                 <div className="row g-3 mb-4">
                   <div className="col-6">
                     <div className="text-center">
-                      <div className="fw-semibold text-muted small">Risk Score</div>
-                      <div className="fs-4 fw-bold">{result.riskScore?.toFixed(3) || 'N/A'}</div>
+                      <div className="fw-semibold text-muted small">
+                        Risk Score
+                      </div>
+                      <div className="fs-4 fw-bold">
+                        {result.riskScore?.toFixed(3) || "N/A"}
+                      </div>
                     </div>
                   </div>
                   <div className="col-6">
                     <div className="text-center">
-                      <div className="fw-semibold text-muted small">Confidence</div>
-                      <div className="fs-4 fw-bold">{result.confidence ? `${(result.confidence * 100).toFixed(1)}%` : 'N/A'}</div>
+                      <div className="fw-semibold text-muted small">
+                        Confidence
+                      </div>
+                      <div className="fs-4 fw-bold">
+                        {result.confidence
+                          ? `${(result.confidence * 100).toFixed(1)}%`
+                          : "N/A"}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -303,68 +332,67 @@ export default function Predict() {
                   </button>
                 </div> */}
                 <div className="d-flex gap-2 mt-4">
-  <button
-    className="btn btn-outline-primary flex-fill"
-    onClick={() => openComingSoon("Save to Patient")}
-  >
-    <i className="fas fa-save me-2"></i>Save to Patient
-  </button>
+                  <button
+                    className="btn btn-outline-primary flex-fill"
+                    onClick={() => openComingSoon("Save to Patient")}
+                  >
+                    <i className="fas fa-save me-2"></i>Save to Patient
+                  </button>
 
-  <button
-    className="btn btn-outline-secondary flex-fill"
-    onClick={() => openComingSoon("Export Report")}
-  >
-    <i className="fas fa-print me-2"></i>Export Report
-  </button>
-</div>
-
+                  <button
+                    className="btn btn-outline-secondary flex-fill"
+                    onClick={() => openComingSoon("Export Report")}
+                  >
+                    <i className="fas fa-print me-2"></i>Export Report
+                  </button>
+                </div>
               </GlassCard>
               {showModal && (
-  <div className="modal fade show d-block" tabIndex="-1">
-    <div className="modal-dialog modal-dialog-centered">
-      <motion.div
-        className="modal-content"
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-      >
-        <div className="modal-header">
-          <h5 className="modal-title">
-            <i className="fas fa-tools me-2"></i>Coming Soon
-          </h5>
-          <button
-            type="button"
-            className="btn-close"
-            onClick={() => setShowModal(false)}
-          ></button>
-        </div>
+                <div className="modal fade show d-block" tabIndex="-1">
+                  <div className="modal-dialog modal-dialog-centered">
+                    <motion.div
+                      className="modal-content"
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                    >
+                      <div className="modal-header">
+                        <h5 className="modal-title">
+                          <i className="fas fa-tools me-2"></i>Coming Soon
+                        </h5>
+                        <button
+                          type="button"
+                          className="btn-close"
+                          onClick={() => setShowModal(false)}
+                        ></button>
+                      </div>
 
-        <div className="modal-body text-center">
-          <i className="fas fa-hourglass-half fs-1 text-primary mb-3"></i>
-          <p className="mb-1 fw-semibold">{featureName}</p>
-          <p className="text-muted mb-0">
-            This feature is under development and will be available soon 🚀
-          </p>
-        </div>
+                      <div className="modal-body text-center">
+                        <i className="fas fa-hourglass-half fs-1 text-primary mb-3"></i>
+                        <p className="mb-1 fw-semibold">{featureName}</p>
+                        <p className="text-muted mb-0">
+                          This feature is under development and will be
+                          available soon 🚀
+                        </p>
+                      </div>
 
-        <div className="modal-footer">
-          <button
-            className="btn btn-primary w-100"
-            onClick={() => setShowModal(false)}
-          >
-            Got it
-          </button>
-        </div>
-      </motion.div>
-    </div>
+                      <div className="modal-footer">
+                        <button
+                          className="btn btn-primary w-100"
+                          onClick={() => setShowModal(false)}
+                        >
+                          Got it
+                        </button>
+                      </div>
+                    </motion.div>
+                  </div>
 
-    {/* Backdrop */}
-    <div
-      className="modal-backdrop fade show"
-      onClick={() => setShowModal(false)}
-    ></div>
-  </div>
-)}
-
+                  {/* Backdrop */}
+                  <div
+                    className="modal-backdrop fade show"
+                    onClick={() => setShowModal(false)}
+                  ></div>
+                </div>
+              )}
             </motion.div>
           )}
         </div>

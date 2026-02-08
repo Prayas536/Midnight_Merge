@@ -1,5 +1,5 @@
-import React from 'react';
-import GlassCard from './GlassCard';
+import React from "react";
+import GlassCard from "./GlassCard";
 
 export default function EmptyState({ icon, title, description, action }) {
   return (

@@ -206,14 +206,28 @@ Diabetes/
 ## 11)⚡ Setup (local)
 **Prerequisites:** Node.js 18+, MongoDB (local/Atlas), ML endpoint
 
+We have provided a `Makefile` for easy setup and testing.
+
+**Install Dependencies:**
+```bash
+make install
+```
+
+**Run Tests:**
+```bash
+make all-test
+```
+
+**Run Services Manually:**
+
 **Backend:**
 ```bash
-cd backend && npm install && npm run dev
+cd backend && npm run dev
 ```
 
 **Frontend:**
 ```bash
-cd frontend && npm install && npm start
+cd frontend && npm start
 ```
 
 **ML Service:**
@@ -231,4 +245,3 @@ pip install -r requirements.txt && python api.py
 
 
 ---
-

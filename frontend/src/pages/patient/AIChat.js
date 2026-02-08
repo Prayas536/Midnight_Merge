@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useRef, useContext } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import ChatBubble from '../../components/chat/ChatBubble';
-import ChatInput from '../../components/chat/ChatInput';
-import SuggestionChips from '../../components/chat/SuggestionChips';
-import { AuthContext } from '../../context/AuthContext';
-import api from '../../api/axios';
+import React, { useEffect, useState, useRef, useContext } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import ChatBubble from "../../components/chat/ChatBubble";
+import ChatInput from "../../components/chat/ChatInput";
+import SuggestionChips from "../../components/chat/SuggestionChips";
+import { AuthContext } from "../../context/AuthContext";
+import api from "../../api/axios";
 
 export default function AIChat() {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ export default function AIChat() {
 
   // Auto scroll to latest message
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
   useEffect(() => {
@@ -36,12 +36,14 @@ export default function AIChat() {
 
       // 1. Check if we came from Prediction page
       if (location.state?.fromPrediction) {
-        console.log('🔍 Coming from prediction page, checking local storage...');
+        console.log(
+          "🔍 Coming from prediction page, checking local storage..."
+        );
         const localContext = localStorage.getItem("prediction_context");
         if (localContext) {
           try {
             const parsed = JSON.parse(localContext);
-            console.log('✅ Loaded context from LocalStorage:', parsed);
+            console.log("✅ Loaded context from LocalStorage:", parsed);
             setPredictionContext(parsed);
             setUsingLocalContext(true);
             setNoPredictionFound(false);
@@ -57,7 +59,9 @@ export default function AIChat() {
       // User requested: "Sidebar -> Quick Question bubble 'Use Last Checkup Data'"
       // This implies we DO NOT auto-load DB data immediately if coming from sidebar.
 
-      console.log('ℹ️ Not from prediction page (or local load failed). Showing option to load DB data.');
+      console.log(
+        "ℹ️ Not from prediction page (or local load failed). Showing option to load DB data."
+      );
       setLoadingPrediction(false);
       setNoPredictionFound(true);
 
@@ -67,10 +71,10 @@ export default function AIChat() {
 
       const systemMessage = {
         id: Date.now(),
-        type: 'assistant',
-        text: '👋 Hi! I can help you with your health questions.',
+        type: "assistant",
+        text: "👋 Hi! I can help you with your health questions.",
         isSystemMessage: true,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
       setMessages([systemMessage]);
     };
@@ -78,40 +82,39 @@ export default function AIChat() {
     initChat();
   }, [location.state]);
 
-
   // Send initial greeting when prediction context is loaded
   useEffect(() => {
     if (predictionContext && messages.length === 0) {
-      console.log('🎉 Setting up greeting message...');
+      console.log("🎉 Setting up greeting message...");
       const greeting = {
         id: Date.now(),
-        type: 'assistant',
+        type: "assistant",
         text: `Hi 👋 I'm your AI health assistant. I can help you understand your diabetes risk assessment and answer any questions you have about your health. Feel free to ask me anything or use the quick questions below to get started!`,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
       setMessages([greeting]);
-      console.log('✅ Greeting message set');
+      console.log("✅ Greeting message set");
     }
   }, [predictionContext]);
 
   // Handle sending message
   const handleSendMessage = async (userMessage) => {
     if (!userMessage.trim() || !predictionContext) {
-      console.warn('❌ Cannot send message:', {
+      console.warn("❌ Cannot send message:", {
         hasMessage: !!userMessage.trim(),
-        hasContext: !!predictionContext
+        hasContext: !!predictionContext,
       });
       return;
     }
 
-    console.log('📤 Sending message:', userMessage);
+    console.log("📤 Sending message:", userMessage);
 
     // Add user message to chat
     const userMsg = {
       id: Date.now(),
-      type: 'user',
+      type: "user",
       text: userMessage,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMsg]);
@@ -124,47 +127,50 @@ export default function AIChat() {
       const chatHistory = messages
         .slice(1) // Skip the initial greeting
         .map((msg) => ({
-          role: msg.type === 'user' ? 'user' : 'assistant',
-          content: msg.text
+          role: msg.type === "user" ? "user" : "assistant",
+          content: msg.text,
         }));
 
-      console.log('📨 Sending to AI with context:', {
+      console.log("📨 Sending to AI with context:", {
         userMessage,
         risk_percent: predictionContext.risk_percent,
-        chatHistory: chatHistory
+        chatHistory: chatHistory,
       });
 
       // Call AI service
-      const response = await api.post('/ai/chat', {
+      const response = await api.post("/ai/chat", {
         userMessage: userMessage,
         predictionContext: predictionContext,
-        chatHistory: chatHistory
+        chatHistory: chatHistory,
       });
 
-      console.log('✅ AI Response received:', response.data);
+      console.log("✅ AI Response received:", response.data);
 
       if (response.data?.success && response.data?.reply) {
         const assistantMsg = {
           id: Date.now() + 1,
-          type: 'assistant',
+          type: "assistant",
           text: response.data.reply,
-          timestamp: new Date()
+          timestamp: new Date(),
         };
         setMessages((prev) => [...prev, assistantMsg]);
       } else {
-        throw new Error('Invalid response from AI service');
+        throw new Error("Invalid response from AI service");
       }
     } catch (err) {
-      console.error('❌ Error sending message:', err);
-      console.error('Error response:', err.response?.data);
+      console.error("❌ Error sending message:", err);
+      console.error("Error response:", err.response?.data);
       const errorMsg = {
         id: Date.now() + 1,
-        type: 'error',
-        text: err.response?.data?.message || err.message || 'Sorry, I encountered an error. Please try again.',
-        timestamp: new Date()
+        type: "error",
+        text:
+          err.response?.data?.message ||
+          err.message ||
+          "Sorry, I encountered an error. Please try again.",
+        timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMsg]);
-      setError(err.response?.data?.message || 'Failed to get AI response');
+      setError(err.response?.data?.message || "Failed to get AI response");
     } finally {
       setLoading(false);
     }
@@ -180,9 +186,9 @@ export default function AIChat() {
     if (predictionContext) {
       const greeting = {
         id: Date.now(),
-        type: 'assistant',
+        type: "assistant",
         text: `Hi 👋 I'm your AI health assistant. I can help you understand your diabetes risk assessment and answer any questions you have about your health. Feel free to ask me anything or use the quick questions below to get started!`,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
       setMessages([greeting]);
       setShowSuggestions(true);
@@ -192,28 +198,32 @@ export default function AIChat() {
 
   // Handle navigate back to prediction
   const handleGoToPredict = () => {
-    navigate('/patient/predict');
+    navigate("/patient/predict");
   };
 
   // Retry loading latest prediction
   const handleLoadLatestCheck = async () => {
-    console.log('🔄 Retrying to load latest prediction...');
+    console.log("🔄 Retrying to load latest prediction...");
     try {
       setLoadingPrediction(true);
-      const response = await api.get('/my/latest-prediction');
+      const response = await api.get("/my/latest-prediction");
 
       if (response.data?.success && response.data?.data) {
-        console.log('✅ Latest prediction loaded:', response.data.data);
+        console.log("✅ Latest prediction loaded:", response.data.data);
         setPredictionContext(response.data.data);
         setNoPredictionFound(false);
         // Clear the system message and show greeting
         setMessages([]);
       } else {
-        setError('No prediction data found. Please complete a prediction first.');
+        setError(
+          "No prediction data found. Please complete a prediction first."
+        );
       }
     } catch (err) {
-      console.error('Error loading prediction:', err);
-      setError('Failed to load prediction. Please try again or complete a new prediction.');
+      console.error("Error loading prediction:", err);
+      setError(
+        "Failed to load prediction. Please try again or complete a new prediction."
+      );
     } finally {
       setLoadingPrediction(false);
     }
@@ -225,7 +235,10 @@ export default function AIChat() {
       <div className="ai-chat-container">
         <div className="ai-chat-error-state">
           <div className="error-content">
-            <i className="fas fa-spinner fa-spin" style={{ fontSize: '2.5rem', color: '#667eea' }}></i>
+            <i
+              className="fas fa-spinner fa-spin"
+              style={{ fontSize: "2.5rem", color: "#667eea" }}
+            ></i>
             <h3>Loading Your Prediction</h3>
             <p>Fetching your latest diabetes risk prediction...</p>
           </div>
@@ -256,7 +269,14 @@ export default function AIChat() {
           <div className="system-message-actions">
             <button
               className="chip-btn"
-              style={{ fontSize: '0.95rem', padding: '10px 20px', borderRadius: '20px', border: '1px solid var(--primary)', background: 'var(--surface)', color: 'var(--primary)' }}
+              style={{
+                fontSize: "0.95rem",
+                padding: "10px 20px",
+                borderRadius: "20px",
+                border: "1px solid var(--primary)",
+                background: "var(--surface)",
+                color: "var(--primary)",
+              }}
               onClick={handleLoadLatestCheck}
               disabled={loadingPrediction}
             >
@@ -266,13 +286,21 @@ export default function AIChat() {
                 </>
               ) : (
                 <>
-                  <i className="fas fa-file-medical me-2"></i>Use Last Checkup Data
+                  <i className="fas fa-file-medical me-2"></i>Use Last Checkup
+                  Data
                 </>
               )}
             </button>
             <button
               className="chip-btn ms-2"
-              style={{ fontSize: '0.95rem', padding: '10px 20px', borderRadius: '20px', border: '1px solid var(--muted)', background: 'transparent', color: 'var(--muted)' }}
+              style={{
+                fontSize: "0.95rem",
+                padding: "10px 20px",
+                borderRadius: "20px",
+                border: "1px solid var(--muted)",
+                background: "transparent",
+                color: "var(--muted)",
+              }}
               onClick={handleGoToPredict}
               disabled={loadingPrediction}
             >
@@ -318,9 +346,9 @@ export default function AIChat() {
           <ChatBubble
             key={message.id}
             message={message.text}
-            isUser={message.type === 'user'}
+            isUser={message.type === "user"}
             timestamp={message.timestamp}
-            isError={message.type === 'error'}
+            isError={message.type === "error"}
           />
         ))}
         {loading && (
@@ -353,10 +381,7 @@ export default function AIChat() {
         <div className="ai-chat-error-banner">
           <i className="fas fa-exclamation-triangle"></i>
           <span>{error}</span>
-          <button
-            className="btn-close-error"
-            onClick={() => setError(null)}
-          >
+          <button className="btn-close-error" onClick={() => setError(null)}>
             <i className="fas fa-times"></i>
           </button>
         </div>

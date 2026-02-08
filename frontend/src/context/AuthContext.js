@@ -39,7 +39,10 @@ export function AuthProvider({ children }) {
         await fetchMe();
       },
       async loginPatient(patientId, password) {
-        const res = await api.post("/auth/login-patient", { patientId, password });
+        const res = await api.post("/auth/login-patient", {
+          patientId,
+          password,
+        });
         const t = res.data.data.token;
         if (t) {
           localStorage.setItem("dpms_token", t);
@@ -48,7 +51,11 @@ export function AuthProvider({ children }) {
         await fetchMe();
       },
       async registerDoctor(name, email, password) {
-        const res = await api.post("/auth/register-doctor", { name, email, password });
+        const res = await api.post("/auth/register-doctor", {
+          name,
+          email,
+          password,
+        });
         const t = res.data.data.token;
         if (t) {
           localStorage.setItem("dpms_token", t);
@@ -57,7 +64,9 @@ export function AuthProvider({ children }) {
         await fetchMe();
       },
       async logout() {
-        try { await api.post("/auth/logout"); } catch {}
+        try {
+          await api.post("/auth/logout");
+        } catch {}
         localStorage.removeItem("dpms_token");
         setToken(null);
         setUser(null);

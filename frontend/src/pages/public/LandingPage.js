@@ -8,30 +8,34 @@ export default function LandingPage() {
     {
       icon: "fas fa-brain",
       title: "AI-Powered Predictions",
-      description: "Advanced machine learning algorithms for accurate diabetes risk assessment"
+      description:
+        "Advanced machine learning algorithms for accurate diabetes risk assessment",
     },
     {
       icon: "fas fa-chart-line",
       title: "Health Monitoring",
-      description: "Comprehensive tracking of HbA1c, blood glucose, and BMI over time"
+      description:
+        "Comprehensive tracking of HbA1c, blood glucose, and BMI over time",
     },
     {
       icon: "fas fa-users",
       title: "Patient Management",
-      description: "Efficient patient records management with detailed visit histories"
+      description:
+        "Efficient patient records management with detailed visit histories",
     },
     {
       icon: "fas fa-shield-alt",
       title: "Secure & Private",
-      description: "HIPAA-compliant platform ensuring patient data confidentiality"
-    }
+      description:
+        "HIPAA-compliant platform ensuring patient data confidentiality",
+    },
   ];
 
   const stats = [
     { number: "~95%", label: "Prediction Accuracy" },
     { number: "10K+", label: "Patients Managed" },
     { number: "500+", label: "Healthcare Providers" },
-    { number: "24/7", label: "System Availability" }
+    { number: "24/7", label: "System Availability" },
   ];
 
   return (
@@ -60,7 +64,8 @@ export default function LandingPage() {
 
             <p className="hero-subtitle">
               Revolutionizing diabetes care with AI-powered risk assessment,
-              comprehensive patient monitoring, and streamlined healthcare workflows.
+              comprehensive patient monitoring, and streamlined healthcare
+              workflows.
             </p>
 
             <motion.div
@@ -72,7 +77,10 @@ export default function LandingPage() {
               <Link to="/login" className="btn btn-primary btn-lg me-3">
                 <i className="fas fa-user-md me-2"></i>Doctor Login
               </Link>
-              <Link to="/patient-login" className="btn btn-outline-primary btn-lg meow">
+              <Link
+                to="/patient-login"
+                className="btn btn-outline-primary btn-lg meow"
+              >
                 <i className="fas fa-user me-2"></i>Patient Portal
               </Link>
             </motion.div>
@@ -96,9 +104,7 @@ export default function LandingPage() {
                   <div className="stat-number display-4 fw-bold text-primary mb-2">
                     {stat.number}
                   </div>
-                  <div className="stat-label text-muted">
-                    {stat.label}
-                  </div>
+                  <div className="stat-label text-muted">{stat.label}</div>
                 </GlassCard>
               </motion.div>
             ))}
@@ -157,8 +163,8 @@ export default function LandingPage() {
             <GlassCard className="p-5">
               <h3 className="mb-3">Ready to Transform Diabetes Care?</h3>
               <p className="text-muted mb-4">
-                Join thousands of healthcare providers using our platform to deliver
-                exceptional diabetes management and patient care.
+                Join thousands of healthcare providers using our platform to
+                deliver exceptional diabetes management and patient care.
               </p>
               <div className="d-flex justify-content-center gap-3">
                 <Link to="/register-doctor" className="btn btn-primary btn-lg">
@@ -186,14 +192,16 @@ export default function LandingPage() {
             <div className="col-md-4">
               <h6 className="fw-bold mb-2">Contact</h6>
               <p className="text-muted small mb-0">
-                singhyashwant439@gmail.com<br />
+                singhyashwant439@gmail.com
+                <br />
                 24/7 Technical Support
               </p>
             </div>
             <div className="col-md-4">
               <h6 className="fw-bold mb-2">Legal</h6>
               <p className="text-muted small mb-0">
-                HIPAA Compliant<br />
+                HIPAA Compliant
+                <br />
                 Privacy Protected
               </p>
             </div>

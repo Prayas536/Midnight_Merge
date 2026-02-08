@@ -27,9 +27,9 @@ export default function ChatInput({ onSend, disabled }) {
           placeholder="Ask about your health..."
           disabled={disabled}
         />
-        <button 
-          className="chat-send-btn" 
-          onClick={submit} 
+        <button
+          className="chat-send-btn"
+          onClick={submit}
           disabled={disabled || !text.trim()}
           title="Send message"
         >
@@ -40,7 +40,9 @@ export default function ChatInput({ onSend, disabled }) {
           )}
         </button>
       </div>
-      <p className="chat-input-hint">Press Enter to send or Shift+Enter for new line</p>
+      <p className="chat-input-hint">
+        Press Enter to send or Shift+Enter for new line
+      </p>
     </div>
   );
 }
