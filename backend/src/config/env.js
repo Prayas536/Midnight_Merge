@@ -11,6 +11,8 @@ const env = {
   USE_AUTH_COOKIE: String(process.env.USE_AUTH_COOKIE || "false") === "true",
   COOKIE_NAME: process.env.COOKIE_NAME || "dpms_token",
   ML_PREDICT_URL: process.env.ML_PREDICT_URL,
+  ML_MEDICINE_URL: process.env.ML_MEDICINE_URL,
+  ML_MEDICINE_DROPDOWN_URL: process.env.ML_MEDICINE_DROPDOWN_URL,
   ML_TIMEOUT_MS: Number(process.env.ML_TIMEOUT_MS || 8000),
   ML_RETRY_COUNT: Number(process.env.ML_RETRY_COUNT || 2),
   MODEL_VERSION: process.env.MODEL_VERSION || "v1",

@@ -73,22 +73,22 @@ export default function PatientProfile() {
             </div>
 
             <div className="row g-4">
-              <div className="col-md-6">
-                <h6 className="text-muted mb-3">
+              <div className="col-md-6 border-end">
+                <h6 className="text-muted mb-4 fw-bold text-uppercase small">
                   <i className="fas fa-id-card me-2"></i>Demographics
                 </h6>
-                <div className="mb-3">
-                  <small className="text-muted d-block">Date of Birth</small>
+                <div className="d-flex justify-content-between mb-3 border-bottom pb-2">
+                  <span className="text-muted">Date of Birth</span>
                   <span className="fw-semibold">
                     {profile?.dob ? new Date(profile.dob).toLocaleDateString() : 'Not provided'}
                   </span>
                 </div>
-                <div className="mb-3">
-                  <small className="text-muted d-block">Gender</small>
+                <div className="d-flex justify-content-between mb-3 border-bottom pb-2">
+                  <span className="text-muted">Gender</span>
                   <span className="fw-semibold text-capitalize">{profile?.gender || 'Not specified'}</span>
                 </div>
-                <div>
-                  <small className="text-muted d-block">Age</small>
+                <div className="d-flex justify-content-between">
+                  <span className="text-muted">Age</span>
                   <span className="fw-semibold">
                     {profile?.dob ? new Date().getFullYear() - new Date(profile.dob).getFullYear() : 'Unknown'} years
                   </span>
@@ -96,23 +96,23 @@ export default function PatientProfile() {
               </div>
 
               <div className="col-md-6">
-                <h6 className="text-muted mb-3">
+                <h6 className="text-muted mb-4 fw-bold text-uppercase small">
                   <i className="fas fa-heartbeat me-2"></i>Health Conditions
                 </h6>
-                <div className="mb-3">
-                  <small className="text-muted d-block">Hypertension</small>
-                  <span className={`badge ${profile?.hypertension ? 'bg-danger' : 'bg-success'}`}>
+                <div className="d-flex justify-content-between mb-3 border-bottom pb-2">
+                  <span className="text-muted">Hypertension</span>
+                  <span className={`badge ${profile?.hypertension ? 'bg-danger' : 'bg-success'} rounded-pill px-3`}>
                     {profile?.hypertension ? 'Yes' : 'No'}
                   </span>
                 </div>
-                <div className="mb-3">
-                  <small className="text-muted d-block">Heart Disease</small>
-                  <span className={`badge ${profile?.heartDisease ? 'bg-danger' : 'bg-success'}`}>
+                <div className="d-flex justify-content-between mb-3 border-bottom pb-2">
+                  <span className="text-muted">Heart Disease</span>
+                  <span className={`badge ${profile?.heartDisease ? 'bg-danger' : 'bg-success'} rounded-pill px-3`}>
                     {profile?.heartDisease ? 'Yes' : 'No'}
                   </span>
                 </div>
-                <div>
-                  <small className="text-muted d-block">Smoking History</small>
+                <div className="d-flex justify-content-between">
+                  <span className="text-muted">Smoking History</span>
                   <span className="fw-semibold text-capitalize">{profile?.smokingHistory || 'Not specified'}</span>
                 </div>
               </div>
@@ -123,64 +123,74 @@ export default function PatientProfile() {
         {/* Health Metrics */}
         <div className="col-lg-4">
           <GlassCard className="p-4 mb-4">
-            <h6 className="text-muted mb-3">
+            <h6 className="text-muted mb-4 fw-bold text-uppercase small">
               <i className="fas fa-chart-line me-2"></i>Current Metrics
             </h6>
 
-            <div className="metric-item mb-3">
-              <div className="d-flex justify-content-between align-items-center">
-                <span className="text-muted">BMI</span>
-                <span className="fw-bold fs-5">{profile?.bmi || 'N/A'}</span>
+            <div className="mb-4">
+              <div className="d-flex justify-content-between align-items-end mb-1">
+                <span className="text-muted fw-medium">BMI</span>
+                <span className="fw-bold fs-5 text-dark">{profile?.bmi || 'N/A'}</span>
               </div>
-              <div className="progress mt-2" style={{ height: '6px' }}>
+              <div className="progress rounded-pill bg-light mb-1" style={{ height: '6px' }}>
                 <div
-                  className="progress-bar bg-primary"
+                  className="progress-bar bg-primary rounded-pill"
                   style={{ width: profile?.bmi ? `${Math.min((profile.bmi / 40) * 100, 100)}%` : '0%' }}
                 ></div>
               </div>
-              <small className="text-muted">Normal: 18.5-24.9</small>
+              <div className="text-end">
+                <small className="text-muted" style={{ fontSize: '0.75rem' }}>Normal: 18.5-24.9</small>
+              </div>
             </div>
 
-            <div className="metric-item mb-3">
-              <div className="d-flex justify-content-between align-items-center">
-                <span className="text-muted">HbA1c</span>
-                <span className="fw-bold fs-5">{profile?.HbA1cLevel ? `${profile.HbA1cLevel}%` : 'N/A'}</span>
+            <div className="mb-4">
+              <div className="d-flex justify-content-between align-items-end mb-1">
+                <span className="text-muted fw-medium">HbA1c</span>
+                <span className="fw-bold fs-5 text-dark">{profile?.HbA1cLevel ? `${profile.HbA1cLevel}%` : 'N/A'}</span>
               </div>
-              <div className="progress mt-2" style={{ height: '6px' }}>
+              <div className="progress rounded-pill bg-light mb-1" style={{ height: '6px' }}>
                 <div
-                  className="progress-bar bg-info"
+                  className="progress-bar bg-info rounded-pill"
                   style={{ width: profile?.HbA1cLevel ? `${Math.min((profile.HbA1cLevel / 10) * 100, 100)}%` : '0%' }}
                 ></div>
               </div>
-              <small className="text-muted">Normal: &lt;5.7%</small>
+              <div className="text-end">
+                <small className="text-muted" style={{ fontSize: '0.75rem' }}>Normal: &lt;5.7%</small>
+              </div>
             </div>
 
-            <div className="metric-item">
-              <div className="d-flex justify-content-between align-items-center">
-                <span className="text-muted">Blood Glucose</span>
-                <span className="fw-bold fs-5">{profile?.bloodGlucoseLevel ? `${profile.bloodGlucoseLevel} mg/dL` : 'N/A'}</span>
+            <div className="mb-2">
+              <div className="d-flex justify-content-between align-items-end mb-1">
+                <span className="text-muted fw-medium">Blood Glucose</span>
+                <span className="fw-bold fs-5 text-dark">{profile?.bloodGlucoseLevel ? `${profile.bloodGlucoseLevel}` : 'N/A'} <span className="fs-6 text-muted fw-normal">mg/dL</span></span>
               </div>
-              <div className="progress mt-2" style={{ height: '6px' }}>
+              <div className="progress rounded-pill bg-light mb-1" style={{ height: '6px' }}>
                 <div
-                  className="progress-bar bg-success"
+                  className="progress-bar bg-success rounded-pill"
                   style={{ width: profile?.bloodGlucoseLevel ? `${Math.min((profile.bloodGlucoseLevel / 200) * 100, 100)}%` : '0%' }}
                 ></div>
               </div>
-              <small className="text-muted">Fasting: 70-99 mg/dL</small>
+              <div className="text-end">
+                <small className="text-muted" style={{ fontSize: '0.75rem' }}>Fasting: 70-99 mg/dL</small>
+              </div>
             </div>
           </GlassCard>
 
           {/* Risk Assessment */}
-          <GlassCard className={`p-4 border-${riskInfo.color}`}>
-            <div className="text-center">
-              <div className={`risk-indicator mb-3 bg-${riskInfo.color}`}>
-                <i className="fas fa-exclamation-triangle fs-2 text-white"></i>
+          <GlassCard className="p-0 border-0 overflow-hidden text-white" style={{
+            background: riskInfo.level === 'High' ? 'linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)' :
+              riskInfo.level === 'Medium' ? 'linear-gradient(135deg, #f6d365 0%, #fda085 100%)' :
+                'linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%)'
+          }}>
+            <div className="p-4 text-center position-relative">
+              <div className="bg-white bg-opacity-25 rounded-circle p-3 d-inline-flex mb-3 shadow-sm">
+                <i className={`fas fa-exclamation-triangle fs-2 ${riskInfo.level === 'High' ? 'text-danger' : riskInfo.level === 'Medium' ? 'text-warning' : 'text-success'}`}></i>
               </div>
-              <h6 className="mb-2">Diabetes Risk Level</h6>
-              <span className={`badge bg-${riskInfo.color} fs-6 px-3 py-2`}>
+              <h6 className="mb-2 fw-bold text-dark opacity-75">Diabetes Risk Level</h6>
+              <span className={`badge bg-white bg-opacity-75 text-dark fs-6 px-4 py-2 rounded-pill shadow-sm`}>
                 {riskInfo.level} Risk
               </span>
-              <p className="text-muted small mt-3 mb-0">
+              <p className="text-dark small mt-3 mb-0 opacity-75 fw-semibold">
                 Based on your current BMI and HbA1c levels
               </p>
             </div>

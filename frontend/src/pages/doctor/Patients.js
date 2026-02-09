@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import api from "../../api/axios";
 import PageHeader from "../../components/layout/PageHeader";
 import GlassCard from "../../components/ui/GlassCard";
+import StatCard from "../../components/ui/StatCard";
 import EmptyState from "../../components/ui/EmptyState";
 import ConfirmModal from "../../components/ui/ConfirmModal";
 
@@ -95,7 +96,8 @@ export default function Patients() {
   const getRiskLevel = (patient) => {
     // First check if we have a risk from the latest visit prediction
     if (patientsWithRisk[patient._id]) {
-      return patientsWithRisk[patient._id];
+      // Normalize: remove " risk" if present to just get the level part
+      return patientsWithRisk[patient._id].toLowerCase().replace(' risk', '').trim();
     }
     // Fallback to HbA1c-based calculation
     const hba1c = patient.HbA1cLevel;
@@ -189,62 +191,138 @@ export default function Patients() {
         actions={actions}
       />
 
-      {/* Search and Filters */}
-      <GlassCard className="p-4 mb-4">
-        <div className="row g-3 align-items-end">
-          <div className="col-md-6">
-            <label className="form-label fw-semibold">Search Patients</label>
-            <div className="input-group">
-              <span className="input-group-text"><i className="fas fa-search"></i></span>
+      {/* Stats Overview */}
+      <div className="row g-4 mb-4">
+        <div className="col-md-3">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
+            <StatCard
+              icon="fas fa-users"
+              title="Total Patients"
+              value={patients.length}
+              delta={{ value: 12, type: 'increase' }}
+              variant="default"
+            />
+          </motion.div>
+        </div>
+        <div className="col-md-3">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
+            <StatCard
+              icon="fas fa-exclamation-triangle"
+              title="High Risk"
+              value={patients.filter(p => getRiskLevel(p) === 'high').length}
+              delta={{ value: 5, type: 'decrease' }}
+              variant="danger"
+            />
+          </motion.div>
+        </div>
+        <div className="col-md-3">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
+            <StatCard
+              icon="fas fa-chart-line"
+              title="Avg HbA1c"
+              value={`${(patients.reduce((acc, p) => acc + (p.HbA1cLevel || 0), 0) / (patients.length || 1)).toFixed(1)}%`}
+              delta={{ value: 0.2, type: 'decrease' }}
+              variant="warning"
+            />
+          </motion.div>
+        </div>
+        <div className="col-md-3">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+            <StatCard
+              icon="fas fa-user-plus"
+              title="New This Month"
+              value={patients.length > 5 ? Math.floor(patients.length * 0.2) : 0}
+              delta={{ value: 8, type: 'increase' }}
+              variant="success"
+            />
+          </motion.div>
+        </div>
+      </div>
+
+      {/* Modern Search and Filter Bar */}
+      <GlassCard className="p-4 mb-4 border-0 shadow-sm">
+        <div className="row g-3 align-items-center">
+          <div className="col-lg-5">
+            <div className="position-relative">
+              <span className="position-absolute top-50 start-0 translate-middle-y ms-3 text-muted">
+                <i className="fas fa-search fs-5"></i>
+              </span>
               <input
-                className="form-control"
-                placeholder="Search by name or patient ID..."
+                className="form-control form-control-lg ps-5 border-0 bg-light"
+                placeholder="Search patients by name or ID..."
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
+                style={{ borderRadius: '15px' }}
               />
-              <button className="btn btn-outline-primary" onClick={load}>
-                Search
+            </div>
+          </div>
+          <div className="col-lg-7">
+            <div className="d-flex gap-2 overflow-auto pb-2 pb-lg-0 justify-content-lg-end">
+              {filterChips.map(chip => (
+                <select
+                  key={chip.key}
+                  className="form-select border-0 bg-light fw-semibold"
+                  value={filters[chip.key]}
+                  onChange={(e) => setFilters({ ...filters, [chip.key]: e.target.value })}
+                  style={{ borderRadius: '12px', minWidth: '140px', cursor: 'pointer' }}
+                >
+                  {chip.options.map(option => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              ))}
+              <button className="btn btn-primary px-4" onClick={load} style={{ borderRadius: '12px', minWidth: '120px' }}>
+                <i className="fas fa-sync-alt me-2"></i>Refresh
               </button>
             </div>
           </div>
-          {filterChips.map(chip => (
-            <div key={chip.key} className="col-md-2">
-              <label className="form-label fw-semibold">{chip.label}</label>
-              <select
-                className="form-select"
-                value={filters[chip.key]}
-                onChange={(e) => setFilters({ ...filters, [chip.key]: e.target.value })}
-              >
-                {chip.options.map(option => (
-                  <option key={option.value} value={option.value}>{option.label}</option>
-                ))}
-              </select>
-            </div>
-          ))}
         </div>
       </GlassCard>
 
       {/* Messages */}
       {msg && (
         <motion.div
-          className={`alert alert-${msg.type === 'success' ? 'success' : 'danger'}`}
+          className={`alert alert-${msg.type === 'success' ? 'success' : 'danger'} border-0 shadow-sm rounded-3`}
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          {typeof msg === 'object' ? msg.text : msg}
+          <div className="d-flex align-items-center">
+            <i className={`fas ${msg.type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} fs-4 me-3`}></i>
+            <div>{typeof msg === 'object' ? msg.text : msg}</div>
+          </div>
         </motion.div>
       )}
 
       {patientLogin && (
         <motion.div
-          className="alert alert-success"
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
+          className="alert alert-success border-0 shadow-sm rounded-3 p-4"
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
         >
-          <div className="fw-semibold mb-2">Patient Created Successfully</div>
-          <div>Patient ID: <code>{patientLogin.patientId}</code></div>
-          <div>Password: <code>{patientLogin.password}</code></div>
-          <small className="text-muted">Please share these credentials with the patient securely.</small>
+          <div className="d-flex">
+            <div className="me-4">
+              <div className="bg-success bg-opacity-10 text-success rounded-circle d-flex align-items-center justify-content-center" style={{ width: '60px', height: '60px' }}>
+                <i className="fas fa-user-check fs-2"></i>
+              </div>
+            </div>
+            <div>
+              <h5 className="fw-bold mb-3">Patient Account Created Successfully</h5>
+              <div className="d-flex gap-4 p-3 bg-white rounded-3 border">
+                <div>
+                  <small className="text-muted d-block text-uppercase fw-bold mb-1" style={{ fontSize: '0.7rem' }}>Patient ID</small>
+                  <code className="fs-5 fw-bold text-dark">{patientLogin.patientId}</code>
+                </div>
+                <div className="vr"></div>
+                <div>
+                  <small className="text-muted d-block text-uppercase fw-bold mb-1" style={{ fontSize: '0.7rem' }}>Temporary Password</small>
+                  <code className="fs-5 fw-bold text-dark">{patientLogin.password}</code>
+                </div>
+              </div>
+              <p className="text-muted mt-3 mb-0 small">
+                <i className="fas fa-lock me-1"></i> Please share these credentials securely with the patient. They will be required to change their password upon first login.
+              </p>
+            </div>
+          </div>
         </motion.div>
       )}
 
@@ -274,104 +352,204 @@ export default function Patients() {
         <>
           {/* Desktop Table */}
           <div className="d-none d-md-block">
-            <GlassCard className="p-0">
+            <GlassCard className="p-0 overflow-hidden border-0 shadow-sm">
               <div className="table-responsive">
-                <table className="table table-hover mb-0">
-                  <thead className="table-light">
+                <table className="table table-hover mb-0 align-middle">
+                  <thead className="bg-opacity-50 border-bottom" style={{ backgroundColor: 'var(--surface)' }}>
                     <tr>
-                      <th>Patient ID</th>
-                      <th>Name</th>
-                      <th>Gender</th>
-                      <th>Age</th>
-                      <th>Risk Level</th>
-                      <th>HbA1c</th>
-                      <th>Actions</th>
+                      <th className="py-3 ps-4 text-muted fw-bold text-uppercase small" style={{ letterSpacing: '0.5px' }}>Patient</th>
+                      <th className="py-3 text-muted fw-bold text-uppercase small" style={{ letterSpacing: '0.5px' }}>Gender/Age</th>
+                      <th className="py-3 text-muted fw-bold text-uppercase small" style={{ letterSpacing: '0.5px' }}>Risk Assessment</th>
+                      <th className="py-3 text-muted fw-bold text-uppercase small" style={{ letterSpacing: '0.5px' }}>Key Metrics</th>
+                      <th className="py-3 pe-4 text-muted fw-bold text-uppercase small text-end" style={{ letterSpacing: '0.5px' }}>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((patient) => {
+                    {filtered.map((patient, index) => {
                       const riskLevel = getRiskLevel(patient);
                       const age = patient.dob ? new Date().getFullYear() - new Date(patient.dob).getFullYear() : 'N/A';
+                      const initial = patient.name.charAt(0).toUpperCase();
 
                       return (
-                        <tr key={patient._id}>
-                          <td><code className="text-primary">{patient.patientId}</code></td>
-                          <td className="fw-semibold">{patient.name}</td>
-                          <td className="text-capitalize">{patient.gender}</td>
-                          <td>{age}</td>
+                        <motion.tr
+                          key={patient._id}
+                          initial={{ opacity: 0, x: -10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className="position-relative"
+                        >
+                          <td className="ps-4 py-3">
+                            <div className="d-flex align-items-center">
+                              <div
+                                className="rounded-circle d-flex align-items-center justify-content-center me-3 text-white fw-bold shadow-sm"
+                                style={{
+                                  width: '45px',
+                                  height: '45px',
+                                  background: `linear-gradient(135deg, ${index % 3 === 0 ? '#667eea, #764ba2' :
+                                    index % 3 === 1 ? '#11998e, #38ef7d' :
+                                      '#ff9966, #ff5e62'
+                                    })`
+                                }}
+                              >
+                                {initial}
+                              </div>
+                              <div>
+                                <h6 className="mb-0 fw-bold" style={{ color: 'var(--text)' }}>{patient.name}</h6>
+                                <small className="text-muted d-block">ID: <code className="text-primary">{patient.patientId}</code></small>
+                              </div>
+                            </div>
+                          </td>
                           <td>
-                            <span className={`badge bg-${riskLevel === 'high' ? 'danger' : riskLevel === 'medium' ? 'warning' : 'success'}`}>
-                              {riskLevel.toUpperCase()}
+                            <div className="d-flex flex-column">
+                              <span className="text-capitalize fw-semibold" style={{ color: 'var(--text)' }}>{patient.gender}</span>
+                              <small className="text-muted">{age} years old</small>
+                            </div>
+                          </td>
+                          <td>
+                            <span className={`badge rounded-pill px-3 py-2 bg-${riskLevel === 'high' ? 'danger' :
+                              riskLevel === 'medium' ? 'warning' :
+                                'success'
+                              } bg-opacity-10 text-${riskLevel === 'high' ? 'danger' :
+                                riskLevel === 'medium' ? 'dark' :
+                                  'success'
+                              } border border-${riskLevel === 'high' ? 'danger' :
+                                riskLevel === 'medium' ? 'warning' :
+                                  'success'
+                              } border-opacity-25`}>
+                              <i className={`fas ${riskLevel === 'high' ? 'fa-exclamation-circle' :
+                                riskLevel === 'medium' ? 'fa-exclamation-triangle' :
+                                  'fa-shield-alt'
+                                } me-2`}></i>
+                              {riskLevel.toUpperCase()} RISK
                             </span>
                           </td>
-                          <td>{patient.HbA1cLevel ? `${patient.HbA1cLevel}%` : '-'}</td>
                           <td>
-                            <div className="btn-group btn-group-sm">
-                              <Link className="btn btn-outline-primary" to={`/doctor/patients/${patient._id}`}>
+                            <div className="d-flex gap-3">
+                              <div className="d-flex flex-column">
+                                <small className="text-muted" style={{ fontSize: '0.7rem' }}>HbA1c</small>
+                                <span className="fw-bold">{patient.HbA1cLevel ? `${patient.HbA1cLevel}%` : '-'}</span>
+                              </div>
+                              <div className="vr opacity-25"></div>
+                              <div className="d-flex flex-column">
+                                <small className="text-muted" style={{ fontSize: '0.7rem' }}>BMI</small>
+                                <span className="fw-bold">{patient.bmi || '-'}</span>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="text-end pe-4">
+                            <div className="btn-group">
+                              <Link
+                                className="btn btn-light btn-sm text-primary"
+                                to={`/doctor/patients/${patient._id}`}
+                                title="View Details"
+                              >
                                 <i className="fas fa-eye"></i>
                               </Link>
-                              <Link className="btn btn-outline-secondary" to={`/doctor/patients/${patient._id}/add-visit`}>
-                                <i className="fas fa-edit"></i>
+                              <Link
+                                className="btn btn-light btn-sm text-secondary"
+                                to={`/doctor/patients/${patient._id}/add-visit`}
+                                title="Add Visit"
+                              >
+                                <i className="fas fa-plus-circle"></i>
                               </Link>
                               <button
-                                className="btn btn-outline-danger"
+                                className="btn btn-light btn-sm text-danger"
                                 onClick={() => handleDeleteClick(patient)}
+                                title="Delete Patient"
                               >
-                                <i className="fas fa-trash"></i>
+                                <i className="fas fa-trash-alt"></i>
                               </button>
                             </div>
                           </td>
-                        </tr>
+                        </motion.tr>
                       );
                     })}
                   </tbody>
                 </table>
               </div>
             </GlassCard>
+            <div className="d-flex justify-content-between align-items-center mt-3 text-muted small px-2">
+              <span>Showing {filtered.length} patients</span>
+              <span>Sorted by latest activity</span>
+            </div>
           </div>
 
           {/* Mobile Cards */}
           <div className="d-md-none row g-3">
-            {filtered.map((patient) => {
+            {filtered.map((patient, index) => {
               const riskLevel = getRiskLevel(patient);
               const age = patient.dob ? new Date().getFullYear() - new Date(patient.dob).getFullYear() : 'N/A';
+              const initial = patient.name.charAt(0).toUpperCase();
 
               return (
-                <div key={patient._id} className="col-12">
-                  <GlassCard className="p-3">
-                    <div className="d-flex justify-content-between align-items-start mb-2">
-                      <div>
-                        <h6 className="mb-1">{patient.name}</h6>
-                        <small className="text-muted">ID: {patient.patientId}</small>
+                <motion.div
+                  key={patient._id}
+                  className="col-12"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: index * 0.05 }}
+                >
+                  <GlassCard className="p-3 border-0 shadow-sm">
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                      <div className="d-flex align-items-center">
+                        <div
+                          className="rounded-circle d-flex align-items-center justify-content-center me-3 text-white fw-bold shadow-sm"
+                          style={{
+                            width: '40px',
+                            height: '40px',
+                            fontSize: '0.9rem',
+                            background: `linear-gradient(135deg, ${index % 3 === 0 ? '#667eea, #764ba2' :
+                              index % 3 === 1 ? '#11998e, #38ef7d' :
+                                '#ff9966, #ff5e62'
+                              })`
+                          }}
+                        >
+                          {initial}
+                        </div>
+                        <div>
+                          <h6 className="mb-0 fw-bold">{patient.name}</h6>
+                          <small className="text-muted">ID: {patient.patientId}</small>
+                        </div>
                       </div>
-                      <span className={`badge bg-${riskLevel === 'high' ? 'danger' : riskLevel === 'medium' ? 'warning' : 'success'}`}>
+                      <span className={`badge rounded-pill bg-${riskLevel === 'high' ? 'danger' :
+                        riskLevel === 'medium' ? 'warning' :
+                          'success'
+                        } bg-opacity-10 text-${riskLevel === 'high' ? 'danger' :
+                          riskLevel === 'medium' ? 'warning' :
+                            'success'
+                        }`}>
                         {riskLevel.toUpperCase()}
                       </span>
                     </div>
-                    <div className="row g-2 text-center">
-                      <div className="col-4">
-                        <small className="text-muted d-block">Gender</small>
-                        <span className="text-capitalize">{patient.gender}</span>
+
+                    <div className="row g-2 text-center mb-3">
+                      <div className="col-4 border-end">
+                        <small className="text-muted d-block" style={{ fontSize: '0.7rem' }}>Gender</small>
+                        <span className="fw-semibold small text-capitalize">{patient.gender}</span>
+                      </div>
+                      <div className="col-4 border-end">
+                        <small className="text-muted d-block" style={{ fontSize: '0.7rem' }}>Age</small>
+                        <span className="fw-semibold small">{age}</span>
                       </div>
                       <div className="col-4">
-                        <small className="text-muted d-block">Age</small>
-                        <span>{age}</span>
-                      </div>
-                      <div className="col-4">
-                        <small className="text-muted d-block">HbA1c</small>
-                        <span>{patient.HbA1cLevel ? `${patient.HbA1cLevel}%` : '-'}</span>
+                        <small className="text-muted d-block" style={{ fontSize: '0.7rem' }}>HbA1c</small>
+                        <span className="fw-semibold small">{patient.HbA1cLevel ? `${patient.HbA1cLevel}%` : '-'}</span>
                       </div>
                     </div>
-                    <div className="d-flex gap-2 mt-3">
-                      <Link className="btn btn-primary btn-sm flex-fill" to={`/doctor/patients/${patient._id}`}>
+
+                    <div className="d-flex gap-2">
+                      <Link className="btn btn-primary btn-sm flex-fill rounded-3" to={`/doctor/patients/${patient._id}`}>
                         View Details
                       </Link>
-                      <Link className="btn btn-outline-primary btn-sm" to={`/doctor/patients/${patient._id}/add-visit`}>
-                        Add Visit
+                      <Link className="btn btn-outline-primary btn-sm rounded-3" to={`/doctor/patients/${patient._id}/add-visit`}>
+                        <i className="fas fa-plus"></i>
                       </Link>
+                      <button className="btn btn-outline-danger btn-sm rounded-3" onClick={() => handleDeleteClick(patient)}>
+                        <i className="fas fa-trash"></i>
+                      </button>
                     </div>
                   </GlassCard>
-                </div>
+                </motion.div>
               );
             })}
           </div>

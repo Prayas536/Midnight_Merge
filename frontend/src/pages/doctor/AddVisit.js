@@ -252,7 +252,7 @@ export default function AddVisit() {
                   <label className="form-label fw-semibold">Patient Name</label>
                   <input
                     type="text"
-                    className="form-control"
+                    className="form-control bg-light border-0"
                     value={patient?.name || ""}
                     readOnly
                   />
@@ -263,7 +263,7 @@ export default function AddVisit() {
                   </label>
                   <input
                     type="date"
-                    className="form-control"
+                    className="form-control bg-light border-0"
                     value={visitDate}
                     onChange={(e) => setVisitDate(e.target.value)}
                     required
@@ -273,7 +273,7 @@ export default function AddVisit() {
                   <label className="form-label fw-semibold">Gender</label>
                   <input
                     type="text"
-                    className="form-control"
+                    className="form-control bg-light border-0"
                     value={gender}
                     readOnly
                   />
@@ -284,7 +284,7 @@ export default function AddVisit() {
                   </label>
                   <input
                     type="number"
-                    className="form-control"
+                    className="form-control bg-light border-0"
                     value={age}
                     onChange={(e) => setAge(e.target.value)}
                     required
@@ -307,33 +307,33 @@ export default function AddVisit() {
                     <i className="fas fa-heartbeat me-2"></i>Hypertension
                   </label>
                   <select
-                    className="form-select"
+                    className="form-select bg-light border-0"
                     value={hypertension}
                     onChange={(e) => setHypertension(e.target.value)}
                   >
                     <option value={0}>No</option>
                     <option value={1}>Yes</option>
-                  </select>
+                  </select>>
                 </div>
                 <div className="col-md-6">
                   <label className="form-label fw-semibold">
                     <i className="fas fa-heart me-2"></i>Heart Disease
                   </label>
                   <select
-                    className="form-select"
+                    className="form-select bg-light border-0"
                     value={heartDisease}
                     onChange={(e) => setHeartDisease(e.target.value)}
                   >
                     <option value={0}>No</option>
                     <option value={1}>Yes</option>
-                  </select>
+                  </select>>
                 </div>
                 <div className="col-md-6">
                   <label className="form-label fw-semibold">
                     <i className="fas fa-smoking me-2"></i>Smoking History
                   </label>
                   <select
-                    className="form-select"
+                    className="form-select bg-light border-0"
                     value={smokingHistory}
                     onChange={(e) => setSmokingHistory(e.target.value)}
                   >
@@ -343,7 +343,7 @@ export default function AddVisit() {
                     <option value="not current">Not Current</option>
                     <option value="No Info">No Info</option>
                     <option value="ever">Ever</option>
-                  </select>
+                  </select>>
                 </div>
                 <div className="col-md-6">
                   <label className="form-label fw-semibold">
@@ -352,7 +352,7 @@ export default function AddVisit() {
                   <input
                     type="number"
                     step="0.1"
-                    className="form-control"
+                    className="form-control bg-light border-0"
                     value={bmi}
                     onChange={(e) => setBmi(e.target.value)}
                     placeholder="e.g., 24.5"
@@ -368,7 +368,7 @@ export default function AddVisit() {
                   <input
                     type="number"
                     step="0.1"
-                    className="form-control"
+                    className="form-control bg-light border-0"
                     value={HbA1cLevel}
                     onChange={(e) => setHbA1c(e.target.value)}
                     placeholder="e.g., 5.7"
@@ -383,7 +383,7 @@ export default function AddVisit() {
                   </label>
                   <input
                     type="number"
-                    className="form-control"
+                    className="form-control bg-light border-0"
                     value={bloodGlucoseLevel}
                     onChange={(e) => setGlucose(e.target.value)}
                     placeholder="e.g., 95"
@@ -426,7 +426,7 @@ export default function AddVisit() {
                   <div className="mb-4">
                     <label className="form-label fw-semibold">Doctor's Notes</label>
                     <textarea
-                      className="form-control"
+                      className="form-control bg-light border-0"
                       rows="4"
                       value={notes}
                       onChange={(e) => setNotes(e.target.value)}
@@ -436,7 +436,7 @@ export default function AddVisit() {
                   <div className="mb-4">
                     <label className="form-label fw-semibold">Recommendations</label>
                     <textarea
-                      className="form-control"
+                      className="form-control bg-light border-0"
                       rows="4"
                       value={recommendations}
                       onChange={(e) => setRecs(e.target.value)}
@@ -465,7 +465,7 @@ export default function AddVisit() {
                   </div>
                   <button
                     type="button"
-                    className="btn btn-outline-primary w-100 mb-3"
+                    className="btn btn-primary w-100 mb-3 bg-gradient border-0 shadow-sm"
                     onClick={runPrediction}
                     disabled={predLoading}
                   >

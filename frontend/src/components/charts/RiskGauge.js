@@ -27,7 +27,7 @@ export default function RiskGauge({ riskScore, riskLabel }) {
 
   const options = {
     responsive: true,
-    maintainAspectRatio: false,
+    maintainAspectRatio: true,
     plugins: {
       legend: {
         display: false,
@@ -40,9 +40,11 @@ export default function RiskGauge({ riskScore, riskLabel }) {
 
   return (
     <div className="text-center">
-      <div style={{ height: '200px', position: 'relative' }}>
-        <Doughnut data={data} options={options} />
-        <div className="position-absolute top-50 start-50 translate-middle">
+      <div style={{ width: '100%', maxWidth: '200px', margin: '0 auto', paddingBottom: '100%', position: 'relative' }}>
+        <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Doughnut data={data} options={options} />
+        </div>
+        <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', zIndex: 10 }}>
           <div className="fs-2 fw-bold">{percentage.toFixed(0)}%</div>
           <div className="text-muted small">Risk Score</div>
         </div>

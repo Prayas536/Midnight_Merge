@@ -92,7 +92,7 @@ export default function PatientVisits() {
           <h5 className="mb-4">
             <i className="fas fa-chart-line me-2"></i>Health Trends Over Time
           </h5>
-          <div style={{ height: '300px' }}>
+          <div className="responsive-chart-container">
             <HbA1cChart data={chartData} />
           </div>
         </GlassCard>
