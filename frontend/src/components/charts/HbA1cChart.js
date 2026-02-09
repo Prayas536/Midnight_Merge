@@ -56,7 +56,7 @@ export default function HbA1cChart({ data, title = "HbA1c Trends" }) {
 
   const options = {
     responsive: true,
-    maintainAspectRatio: false,
+    maintainAspectRatio: true,
     interaction: {
       mode: 'index',
       intersect: false,
