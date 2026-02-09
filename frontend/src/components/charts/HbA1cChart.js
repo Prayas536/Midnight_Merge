@@ -56,7 +56,7 @@ export default function HbA1cChart({ data, title = "HbA1c Trends" }) {
 
   const options = {
     responsive: true,
-    maintainAspectRatio: false,
+    maintainAspectRatio: true,
     interaction: {
       mode: 'index',
       intersect: false,
@@ -132,7 +132,7 @@ export default function HbA1cChart({ data, title = "HbA1c Trends" }) {
   };
 
   return (
-    <div style={{ height: '100%', minHeight: '300px' }}>
+    <div className="hba1c-chart-container" style={{ width: '100%', maxHeight: '400px', display: 'block' }}>
       <Line data={chartData} options={options} />
     </div>
   );
