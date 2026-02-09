@@ -107,7 +107,13 @@ export default function Predict() {
       try {
         const res = await api.get("/medicine/dropdown-options");
         if (res.data.success) {
-          setDropdownOptions(res.data.data);
+          // Normalize keys: replace spaces with underscores to match state keys
+          const normalizedData = {};
+          Object.keys(res.data.data).forEach(key => {
+            const newKey = key.replace(/ /g, "_");
+            normalizedData[newKey] = res.data.data[key];
+          });
+          setDropdownOptions(normalizedData);
         }
       } catch (e) {
         console.log("Using default dropdown options");
