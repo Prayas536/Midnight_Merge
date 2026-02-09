@@ -60,8 +60,10 @@ export default function AppNavbar({ onMenuClick, sidebarCollapsed }) {
         {/* Right Side: Theme & User */}
         <div className="d-flex align-items-center gap-4">
           {/* Theme Toggle */}
-          <button
+          <motion.button
             onClick={toggleTheme}
+            whileHover={{ scale: 1.1, rotate: 15 }}
+            whileTap={{ scale: 0.9, rotate: -15 }}
             className="btn btn-link nav-link p-0 text-body transition-transform"
             title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
             style={{ fontSize: '1.2rem' }}
@@ -69,9 +71,9 @@ export default function AppNavbar({ onMenuClick, sidebarCollapsed }) {
             {theme === 'light' ? (
               <i className="fas fa-moon"></i>
             ) : (
-              <i className="fas fa-sun"></i>
+              <i className="fas fa-sun text-warning"></i>
             )}
-          </button>
+          </motion.button>
 
           {/* User User Profile */}
           {user ? (
@@ -87,13 +89,15 @@ export default function AppNavbar({ onMenuClick, sidebarCollapsed }) {
                 <div
                   className="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
                   style={{
-                    width: '35px',
-                    height: '35px',
-                    fontSize: '0.9rem',
-                    background: user.userType === 'doctor' ? '#667eea' : '#11998e'
+                    width: '38px',
+                    height: '38px',
+                    fontSize: '1.1rem',
+                    background: user.userType === 'doctor'
+                      ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+                      : 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)'
                   }}
                 >
-                  {getInitials(user.name)}
+                  <i className="fas fa-user"></i>
                 </div>
               </button>
 

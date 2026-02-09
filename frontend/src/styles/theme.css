@@ -47,12 +47,19 @@ body {
   transition: background-color 200ms, color 200ms, border-color 200ms;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-weight: 600;
   line-height: 1.2;
 }
 
-p, span, div {
+p,
+span,
+div {
   font-weight: 400;
 }
 
@@ -117,6 +124,11 @@ p, span, div {
   border-radius: 8px;
   color: white;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+[data-theme="dark"] .btn-primary {
+  color: var(--bg);
+  font-weight: 600;
 }
 
 .btn-primary:hover {
@@ -207,15 +219,15 @@ p, span, div {
     transition: transform 0.3s ease;
     width: 250px;
   }
-  
+
   .sidebar.expanded {
     transform: translateX(0);
   }
-  
+
   .main-content.sidebar-expanded {
     margin-left: 0;
   }
-  
+
   .main-content.sidebar-collapsed {
     margin-left: 0;
   }
@@ -305,6 +317,7 @@ p, span, div {
 [data-theme="dark"] .text-light {
   color: #f1f5f9 !important;
 }
+
 [data-theme="dark"] .dog {
   color: #f1f5f9 !important;
 }

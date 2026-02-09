@@ -96,7 +96,8 @@ export default function Patients() {
   const getRiskLevel = (patient) => {
     // First check if we have a risk from the latest visit prediction
     if (patientsWithRisk[patient._id]) {
-      return patientsWithRisk[patient._id];
+      // Normalize: remove " risk" if present to just get the level part
+      return patientsWithRisk[patient._id].toLowerCase().replace(' risk', '').trim();
     }
     // Fallback to HbA1c-based calculation
     const hba1c = patient.HbA1cLevel;
@@ -354,7 +355,7 @@ export default function Patients() {
             <GlassCard className="p-0 overflow-hidden border-0 shadow-sm">
               <div className="table-responsive">
                 <table className="table table-hover mb-0 align-middle">
-                  <thead className="bg-light bg-opacity-50 border-bottom">
+                  <thead className="bg-opacity-50 border-bottom" style={{ backgroundColor: 'var(--surface)' }}>
                     <tr>
                       <th className="py-3 ps-4 text-muted fw-bold text-uppercase small" style={{ letterSpacing: '0.5px' }}>Patient</th>
                       <th className="py-3 text-muted fw-bold text-uppercase small" style={{ letterSpacing: '0.5px' }}>Gender/Age</th>
@@ -393,14 +394,14 @@ export default function Patients() {
                                 {initial}
                               </div>
                               <div>
-                                <h6 className="mb-0 fw-bold text-dark">{patient.name}</h6>
+                                <h6 className="mb-0 fw-bold" style={{ color: 'var(--text)' }}>{patient.name}</h6>
                                 <small className="text-muted d-block">ID: <code className="text-primary">{patient.patientId}</code></small>
                               </div>
                             </div>
                           </td>
                           <td>
                             <div className="d-flex flex-column">
-                              <span className="text-capitalize fw-semibold text-dark">{patient.gender}</span>
+                              <span className="text-capitalize fw-semibold" style={{ color: 'var(--text)' }}>{patient.gender}</span>
                               <small className="text-muted">{age} years old</small>
                             </div>
                           </td>

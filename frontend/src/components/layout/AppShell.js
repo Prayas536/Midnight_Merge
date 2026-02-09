@@ -40,11 +40,32 @@ export default function AppShell() {
 
   const closeSidebar = () => setSidebarOpen(false);
 
+  const handleMouseEnter = () => {
+    if (window.innerWidth >= 768) {
+      setSidebarCollapsed(false);
+    }
+  };
+
+  const handleMouseLeave = () => {
+    if (window.innerWidth >= 768) {
+      setSidebarCollapsed(true);
+    }
+  };
+
   return (
     <div className="app-container">
       {!isPublicRoute && <AppNavbar onMenuClick={toggleSidebar} sidebarCollapsed={sidebarCollapsed} />}
       <div className="app-body">
-        {!isPublicRoute && <SideNav collapsed={sidebarCollapsed} open={sidebarOpen} onClose={closeSidebar} onToggle={toggleSidebar} />}
+        {!isPublicRoute && (
+          <SideNav
+            collapsed={sidebarCollapsed}
+            open={sidebarOpen}
+            onClose={closeSidebar}
+            onToggle={toggleSidebar}
+            onMouseEnter={handleMouseEnter}
+            onMouseLeave={handleMouseLeave}
+          />
+        )}
         <main className={`main-content ${!isPublicRoute && !sidebarOpen ? (sidebarCollapsed ? 'sidebar-collapsed' : 'sidebar-expanded') : ''}`}>
           <Routes>
             <Route path="/" element={user ? <Navigate to={user.userType === "doctor" ? "/doctor/dashboard" : "/patient/dashboard"} replace /> : <LandingPage />} />

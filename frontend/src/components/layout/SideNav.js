@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 
-export default function SideNav({ collapsed, open, onClose, onToggle }) {
+export default function SideNav({ collapsed, open, onClose, onToggle, onMouseEnter, onMouseLeave }) {
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -14,12 +14,12 @@ export default function SideNav({ collapsed, open, onClose, onToggle }) {
   const navItems = user?.userType === 'doctor' ? [
     { to: '/doctor/dashboard', icon: 'fas fa-th-large', label: 'Dashboard' },
     { to: '/doctor/patients', icon: 'fas fa-user-friends', label: 'Patients' },
-    { to: '/doctor/predict', icon: 'fas fa-magic', label: 'AI Predict' },
+    { to: '/doctor/predict', icon: 'fas fa-magic', label: 'Predict' },
   ] : [
     { to: '/patient/dashboard', icon: 'fas fa-th-large', label: 'Dashboard' },
     { to: '/patient/profile', icon: 'fas fa-user-circle', label: 'Profile' },
     { to: '/patient/visits', icon: 'fas fa-calendar-alt', label: 'Visits' },
-    { to: '/patient/predict', icon: 'fas fa-magic', label: 'AI Predict' },
+    { to: '/patient/predict', icon: 'fas fa-magic', label: 'Predict' },
     { to: '/patient/ai-chat', icon: 'fas fa-robot', label: 'AI Assistant' }
   ];
 
@@ -28,7 +28,11 @@ export default function SideNav({ collapsed, open, onClose, onToggle }) {
       {/* Mobile Overlay */}
       {open && <div className="sidebar-overlay d-md-none" onClick={onClose}></div>}
 
-      <nav className={`sidebar ${collapsed ? 'collapsed' : 'expanded'} ${open ? 'open' : ''}`}>
+      <nav
+        className={`sidebar ${collapsed ? 'collapsed' : 'expanded'} ${open ? 'open' : ''}`}
+        onMouseEnter={onMouseEnter}
+        onMouseLeave={onMouseLeave}
+      >
         {/* Logo Section - Acts as Toggle */}
         <div
           className="sidebar-logo clickable"

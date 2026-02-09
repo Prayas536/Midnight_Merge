@@ -44,27 +44,23 @@ export default function PatientDashboard() {
   const currentMetrics = latestVisit?.metrics || {};
 
   const quickActions = [
-    <Link key="predict" to="/patient/predict" className="btn btn-success bg-gradient shadow-sm rounded-pill px-4 me-2">
-      <i className="fas fa-brain me-2"></i>Check My Risk
-    </Link>,
-    <Link key="visits" to="/patient/visits" className="btn btn-white border shadow-sm rounded-pill px-4">
-      <i className="fas fa-calendar-alt me-2 text-primary"></i>View Visits
-    </Link>,
+    <motion.div key="predict" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="d-inline-block">
+      <Link to="/patient/predict" className="btn btn-primary shadow-sm rounded-pill px-4 me-2">
+        <i className="fas fa-brain me-2"></i>Check My Risk
+      </Link>
+    </motion.div>,
+    <motion.div key="visits" whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="d-inline-block">
+      <Link to="/patient/visits" className="btn btn-secondary border shadow-sm rounded-pill px-4">
+        <i className="fas fa-calendar-alt me-2 text-primary"></i>View Visits
+      </Link>
+    </motion.div>,
   ];
 
   return (
     <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={{
-        hidden: { opacity: 0 },
-        visible: {
-          opacity: 1,
-          transition: {
-            staggerChildren: 0.1
-          }
-        }
-      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
     >
       <PageHeader
         title={`Welcome back, ${profile?.name || 'Patient'}`}
@@ -119,7 +115,12 @@ export default function PatientDashboard() {
       <div className="row g-4">
         {/* Last Visit Summary */}
         <div className="col-lg-4">
-          <motion.div variants={{ hidden: { x: -20, opacity: 0 }, visible: { x: 0, opacity: 1 } }} className="h-100">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="h-100"
+          >
             <GlassCard className="p-0 overflow-hidden h-100">
               <div className="p-4 border-bottom bg-light bg-opacity-25">
                 <h5 className="mb-0 fw-bold d-flex align-items-center">
@@ -183,7 +184,12 @@ export default function PatientDashboard() {
 
         {/* Personal Trend Chart */}
         <div className="col-lg-8">
-          <motion.div variants={{ hidden: { x: 20, opacity: 0 }, visible: { x: 0, opacity: 1 } }} className="h-100">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="h-100"
+          >
             <GlassCard className="p-4 h-100">
               <div className="d-flex justify-content-between align-items-center mb-3">
                 <h5 className="mb-0">
@@ -193,20 +199,22 @@ export default function PatientDashboard() {
                   View Details
                 </Link>
               </div>
-              {visits.length > 1 ? (
-                <HbA1cChart
-                  data={{
-                    labels: visits.slice().reverse().map(v => new Date(v.visitDate).toLocaleDateString()),
-                    values: visits.slice().reverse().map(v => v.metrics?.HbA1cLevel || 0)
-                  }}
-                />
-              ) : (
-                <div className="text-center py-5">
-                  <i className="fas fa-chart-line fs-2 text-muted mb-3"></i>
-                  <p className="text-muted">More data needed for trends</p>
-                  <small className="text-muted">Complete additional visits to see your progress</small>
-                </div>
-              )}
+              <div className="responsive-chart-container">
+                {visits.length > 1 ? (
+                  <HbA1cChart
+                    data={{
+                      labels: visits.slice().reverse().map(v => new Date(v.visitDate).toLocaleDateString()),
+                      values: visits.slice().reverse().map(v => v.metrics?.HbA1cLevel || 0)
+                    }}
+                  />
+                ) : (
+                  <div className="text-center py-5">
+                    <i className="fas fa-chart-line fs-2 text-muted mb-3"></i>
+                    <p className="text-muted">More data needed for trends</p>
+                    <small className="text-muted">Complete additional visits to see your progress</small>
+                  </div>
+                )}
+              </div>
             </GlassCard>
           </motion.div>
         </div>

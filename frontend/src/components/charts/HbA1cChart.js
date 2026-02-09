@@ -132,7 +132,7 @@ export default function HbA1cChart({ data, title = "HbA1c Trends" }) {
   };
 
   return (
-    <div style={{ height: '100%', minHeight: '300px' }}>
+    <div style={{ height: '100%', width: '100%', position: 'relative' }}>
       <Line data={chartData} options={options} />
     </div>
   );

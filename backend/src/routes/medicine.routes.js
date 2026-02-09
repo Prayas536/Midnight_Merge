@@ -7,12 +7,6 @@ const c = require("../controllers/medicine.controller");
 
 const router = express.Router();
 
-// Only doctors can access medicine recommendation
-router.use(auth, requireRole(["doctor"]));
-
-// Get dropdown options for the form
-router.get("/dropdown-options", c.getDropdownOptions);
-
 // Recommend medicine based on patient data
 router.post(
     "/recommend",

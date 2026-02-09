@@ -112,17 +112,9 @@ export default function DoctorDashboard() {
 
   return (
     <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={{
-        hidden: { opacity: 0 },
-        visible: {
-          opacity: 1,
-          transition: {
-            staggerChildren: 0.1
-          }
-        }
-      }}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
       className="dashboard-container"
     >
       {/* Welcome Section */}
@@ -130,7 +122,7 @@ export default function DoctorDashboard() {
         className="dashboard-welcome"
         variants={{
           hidden: { y: -20, opacity: 0 },
-          visible: { y: 0, opacity: 1, transition: { duration: 0.5 } }
+          visible: { y: 0, opacity: 1, transition: { duration: 0.6, ease: "easeOut" } }
         }}
       >
         <div className="row align-items-center">
@@ -143,12 +135,12 @@ export default function DoctorDashboard() {
           <div className="col-md-4 text-md-end mt-3 mt-md-0">
             <div className="d-flex gap-2 justify-content-md-end">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link to="/doctor/patients" className="btn action-btn action-btn-primary">
+                <Link to="/doctor/patients" className="btn action-btn action-btn-primary shadow-sm">
                   <i className="fas fa-user-plus"></i> Add Patient
                 </Link>
               </motion.div>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                <Link to="/doctor/predict" className="btn action-btn action-btn-success">
+                <Link to="/doctor/predict" className="btn action-btn action-btn-success shadow-sm">
                   <i className="fas fa-brain"></i> Prediction
                 </Link>
               </motion.div>
@@ -263,7 +255,7 @@ export default function DoctorDashboard() {
                       >
                         <Link to={`/doctor/patients/${patient._id}`} className="text-decoration-none">
                           <div className="patient-list-item">
-                            <div className="patient-avatar">
+                            <div className="patient-avatar shadow-sm">
                               {patient.name.charAt(0).toUpperCase()}
                             </div>
                             <div className="patient-info">
@@ -291,10 +283,9 @@ export default function DoctorDashboard() {
         {/* Trends Chart */}
         <div className="col-lg-8">
           <motion.div
-            variants={{
-              hidden: { opacity: 0, x: 20 },
-              visible: { opacity: 1, x: 0, transition: { delay: 0.5 } }
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
             className="h-100"
           >
             <GlassCard className="h-100 p-4">
@@ -317,7 +308,7 @@ export default function DoctorDashboard() {
                 </div>
               </div>
 
-              <div style={{ minHeight: '300px' }}>
+              <div className="responsive-chart-container">
                 {chartData && getCurrentChartData() ? (
                   <HbA1cChart data={getCurrentChartData()} />
                 ) : (

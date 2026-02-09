@@ -798,6 +798,27 @@
 }
 
 /* Quick Actions Toolbar */
+.responsive-chart-container {
+  width: 100%;
+  height: 350px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+@media (max-width: 992px) {
+  .responsive-chart-container {
+    height: 300px;
+  }
+}
+
+@media (max-width: 576px) {
+  .responsive-chart-container {
+    height: 250px;
+  }
+}
+
 .quick-actions {
   display: flex;
   gap: 1rem;
@@ -2771,4 +2792,184 @@
 
 .transition-all {
   transition: all 0.3s ease;
+}
+
+/* ============================================
+   DARK MODE TABLE OVERRIDES
+   ============================================ */
+[data-theme="dark"] .table {
+  --bs-table-bg: transparent;
+  --bs-table-color: var(--text);
+  --bs-table-hover-bg: rgba(255, 255, 255, 0.05);
+  --bs-table-hover-color: var(--text);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+[data-theme="dark"] .table> :not(caption)>*>* {
+  background-color: transparent;
+  color: var(--text);
+  border-bottom-color: var(--border);
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .table-hover>tbody>tr:hover>* {
+  background-color: rgba(255, 255, 255, 0.05);
+  color: var(--text);
+  box-shadow: none !important;
+}
+
+/* ============================================
+   DARK MODE AI CHAT OVERRIDES
+   ============================================ */
+[data-theme="dark"] .ai-chat-container,
+[data-theme="dark"] .ai-chat-messages,
+[data-theme="dark"] .chat-input-container,
+[data-theme="dark"] .ai-chat-suggestions,
+[data-theme="dark"] .ai-chat-container .chat-input-container,
+[data-theme="dark"] .system-message-actions,
+[data-theme="dark"] .ai-chat-error-state {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .ai-chat-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border-bottom: 1px solid var(--border);
+}
+
+[data-theme="dark"] .ai-chat-messages::-webkit-scrollbar-track {
+  background: var(--surface) !important;
+}
+
+[data-theme="dark"] .ai-chat-messages::-webkit-scrollbar-thumb {
+  background: var(--border) !important;
+}
+
+[data-theme="dark"] .bubble.assistant {
+  background: var(--bg) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .bubble.assistant .message-text code {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border-color: var(--border) !important;
+  color: #fca5a5 !important;
+}
+
+[data-theme="dark"] .chat-input-field,
+[data-theme="dark"] .ai-chat-container .chat-input-field {
+  background: var(--bg) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .chat-input-field:focus,
+[data-theme="dark"] .ai-chat-container .chat-input-field:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2) !important;
+}
+
+[data-theme="dark"] .suggestion-chips-container {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .chip-btn {
+  background: var(--bg) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .chip-btn:hover:not(:disabled) {
+  background: var(--card) !important;
+  border-color: var(--primary) !important;
+}
+
+/* ============================================
+   PATIENT DETAILS DARK MODE OVERRIDES
+   ============================================ */
+[data-theme="dark"] .patient-details-page .bg-light,
+[data-theme="dark"] .patient-details-page .bg-white {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: var(--text) !important;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .patient-details-page .text-dark {
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .patient-details-page .card {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  border-color: var(--border) !important;
+  color: var(--text) !important;
+}
+
+[data-theme="dark"] .patient-details-page .border-light {
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] .patient-details-page .text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* ============================================
+   DARK MODE FORM INPUTS
+   ============================================ */
+[data-theme="dark"] .form-control,
+[data-theme="dark"] .form-select {
+  background-color: var(--bg);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+[data-theme="dark"] .form-control:focus,
+[data-theme="dark"] .form-select:focus {
+  background-color: var(--bg);
+  border-color: var(--primary);
+  color: var(--text);
+  box-shadow: 0 0 0 0.25rem rgba(102, 126, 234, 0.25);
+}
+
+[data-theme="dark"] .form-control::placeholder {
+  color: var(--text-muted);
+  opacity: 0.7;
+}
+
+[data-theme="dark"] .form-select option {
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+[data-theme="dark"] .form-control:disabled,
+[data-theme="dark"] .form-control[readonly],
+[data-theme="dark"] .form-control.bg-light,
+[data-theme="dark"] .form-select:disabled,
+[data-theme="dark"] .form-select.bg-light,
+[data-theme="dark"] .form-select-lg.bg-light,
+[data-theme="dark"] .form-select-sm.bg-light {
+  background-color: rgba(255, 255, 255, 0.05) !important;
+  color: var(--text-muted) !important;
+  opacity: 1;
+  border-color: var(--border) !important;
+}
+
+[data-theme="dark"] input:-webkit-autofill,
+[data-theme="dark"] input:-webkit-autofill:hover,
+[data-theme="dark"] input:-webkit-autofill:focus,
+[data-theme="dark"] textarea:-webkit-autofill,
+[data-theme="dark"] textarea:-webkit-autofill:hover,
+[data-theme="dark"] textarea:-webkit-autofill:focus,
+[data-theme="dark"] select:-webkit-autofill,
+[data-theme="dark"] select:-webkit-autofill:hover,
+[data-theme="dark"] select:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--text) !important;
+  -webkit-box-shadow: 0 0 0px 1000px var(--bg) inset !important;
+  background-color: var(--bg) !important;
+  background-image: none !important;
+  color: var(--text) !important;
+  transition: background-color 5000s ease-in-out 0s;
 }
