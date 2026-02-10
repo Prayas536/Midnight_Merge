@@ -6,7 +6,7 @@ import 'package:flutter/foundation.dart';
 class ApiService {
   // Use 10.0.2.2 for Android Emulator, localhost for iOS Simulator/Web
   // If testing on a real device, use your PC's local IP (e.g., http://192.168.1.5:5000/api)
-  static String baseUrl = (dotenv.env['API_URL'] ?? 'https://diabetesprediction-production-6f63.up.railway.app/api')
+  static String baseUrl = (dotenv.env['API_URL'] ?? 'https://midnightmerge-production.up.railway.app/api')
       .replaceAll(RegExp(r'/$'), '');
 
   final Dio _dio = Dio(

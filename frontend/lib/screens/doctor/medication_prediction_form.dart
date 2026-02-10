@@ -398,22 +398,26 @@ class _MedicationPredictionFormState extends State<MedicationPredictionForm>
                   strokeWidth: 3,
                 ),
               )
-            : const Row(
+            : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.auto_awesome_rounded,
                     color: Colors.white,
                     size: 26,
                   ),
-                  SizedBox(width: 14),
-                  Text(
-                    'Get ML Recommendation',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      letterSpacing: 1.0,
+                  const SizedBox(width: 14),
+                  Flexible(
+                    child: const Text(
+                      'Get ML Recommendation',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                        letterSpacing: 1.0,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
                     ),
                   ),
                 ],
