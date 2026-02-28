@@ -252,6 +252,7 @@ class _PatientsScreenState extends State<PatientsScreen> {
                   },
                 ),
         ),
+        const SizedBox(height: 100), // Padding to clear the navigation bar
       ],
     );
   }

@@ -45,6 +45,7 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
     return "${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}";
   }
 
+  // Fetches patient details to pre-fill the form (e.g. age, gender)
   Future<void> _fetchPatientDetails() async {
     try {
       final res = await ApiService().dio.get('/patients/${widget.patientId}');
@@ -52,7 +53,7 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
         final data = res.data['data'];
         setState(() {
           _patientData = data;
-          // Auto-fill Gender
+          // Auto-fill Gender directly from the patient profile
           if (data['gender'] != null) {
             final g = data['gender'].toString().toLowerCase();
             if (g == 'male')
@@ -63,7 +64,7 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
               gender = 'Other';
           }
 
-          // Auto-fill Age from DOB
+          // Auto-fill Age by calculating it from Date of Birth (DOB) or using 'age' field
           if (data['dob'] != null) {
             final dob = DateTime.parse(data['dob']);
             final age = DateTime.now().year - dob.year;
@@ -86,11 +87,13 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
     }
   }
 
+  // Generates AI-powered visit notes and recommendations based on current metrics
   Future<void> _generateNotes() async {
     if (!_formKey.currentState!.validate() || _patientData == null) return;
 
     setState(() => _isGeneratingNotes = true);
     try {
+      // Call the AI endpoint with patient data and current metrics
       final res = await ApiService().dio.post(
         '/ai/generate-notes',
         data: {
@@ -107,12 +110,13 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
             'heartDisease': heartDisease == 1,
             'smokingHistory': smoking,
           },
-          'visit_history': [],
+          'visit_history': [], // Assuming new patient or fresh history context
         },
       );
       if (mounted) {
         final data = res.data['data'];
         setState(() {
+          // Pre-fill the notes and recommendations text fields
           _notesCtrl.text = data?['notes'] ?? '';
           _recsCtrl.text = data?['recommendations'] ?? '';
           _isGeneratingNotes = false;
@@ -173,12 +177,14 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
   //   }
   // }
 
+  // Predicts patient health risk based on the current form input
   Future<void> _predict() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isPredictingRisk = true);
     _prediction = null;
     try {
+      // Call the ML prediction endpoint
       final res = await ApiService().dio.post(
         '/predictions',
         data: {
@@ -215,10 +221,12 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
     }
   }
 
+  // Submits the new visit data (including metrics, notes, recommendations, and prediction)
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
     try {
+      // Create a new visit record under the current patient's ID
       await ApiService().dio.post(
         '/patients/${widget.patientId}/visits',
         data: {
@@ -235,6 +243,7 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
           },
           'notes': _notesCtrl.text,
           'recommendations': _recsCtrl.text,
+          // Attach prediction data to the visit if the user elected to save it
           'prediction': _savePrediction && _prediction != null
               ? {
                   'riskLabel': _prediction!['riskLabel'],
@@ -801,7 +810,9 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
                       ),
                     ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.2),
 
-                    const SizedBox(height: 30),
+                    const SizedBox(
+                      height: 120,
+                    ), // Padding to clear the navigation bar
                   ],
                 ),
               ),

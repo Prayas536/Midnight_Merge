@@ -25,12 +25,15 @@ class _PatientPredictScreenState extends State<PatientPredictScreen> {
   Map<String, dynamic>? _result;
   final _formKey = GlobalKey<FormState>();
 
+  // Submits the health inputs to the ML backend for prediction
   Future<void> _submit() async {
+    // Validate form before sending request
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _loading = true);
     _result = null;
     try {
+      // Structure the data according to the expected ML model features
       final res = await ApiService().dio.post(
         '/predictions',
         data: {
@@ -46,7 +49,7 @@ class _PatientPredictScreenState extends State<PatientPredictScreen> {
       );
       if (mounted) {
         setState(() => _result = res.data['data']);
-        // Show dialog to discuss with AI
+        // Show dialog allowing the user to discuss the results with AI
         _showChatDialog();
       }
     } catch (e) {
@@ -475,7 +478,9 @@ class _PatientPredictScreenState extends State<PatientPredictScreen> {
                       child: _buildResultCard(),
                     ).animate().fadeIn().slideY(begin: 0.1),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(
+                    height: 120,
+                  ), // Padding to clear the navigation bar
                 ],
               ),
             ),

@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../../services/api_service.dart';
 import '../../providers/auth_provider.dart';
+import 'patients_screen.dart';
 
 class DoctorDashboard extends StatefulWidget {
   const DoctorDashboard({super.key});
@@ -12,15 +13,19 @@ class DoctorDashboard extends StatefulWidget {
 }
 
 class _DoctorDashboardState extends State<DoctorDashboard> {
+  // Number of total patients to display on the dashboard
   int _patientCount = 0;
+  // Indicates if the initial data is still loading
   bool _loading = true;
 
   @override
   void initState() {
     super.initState();
+    // Fetch dashboard statistics when screen initializes
     _loadStats();
   }
 
+  // Fetches patient count from the backend API
   Future<void> _loadStats() async {
     try {
       final res = await ApiService().dio.get('/patients');
@@ -195,15 +200,15 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                               label: 'New Patient',
                               color: const Color(0xFF43A047),
                               onTap: () {
-                                // Hint for user
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Go to "My Patients" to add a new patient.',
-                                      style: const TextStyle(),
-                                    ),
-                                  ),
-                                );
+                                // Dialog to add a new patient without leaving the dashboard
+                                showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (ctx) => const AddPatientDialog(),
+                                ).then((val) {
+                                  // Refresh stats if the dialog returns true (patient added)
+                                  if (val == true) _loadStats();
+                                });
                               },
                             ),
                           ),
@@ -308,7 +313,9 @@ class _DoctorDashboardState extends State<DoctorDashboard> {
                         ),
                       ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.2),
 
-                      const SizedBox(height: 100), // Space for scrolling
+                      const SizedBox(
+                        height: 120,
+                      ), // Space for scrolling under nav bar
                     ],
                   ),
                 ),

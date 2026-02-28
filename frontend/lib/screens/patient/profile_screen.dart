@@ -19,17 +19,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> _load() async {
     try {
-        final res = await ApiService().dio.get('/my/profile');
-        setState(() { p = res.data['data']; loading = false; });
-    } catch(e) { 
-        setState(() => loading = false); 
+      final res = await ApiService().dio.get('/my/profile');
+      setState(() {
+        p = res.data['data'];
+        loading = false;
+      });
+    } catch (e) {
+      setState(() => loading = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: loading 
+      body: loading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
               child: Column(
@@ -53,7 +56,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                       ],
                     ),
-                    padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 20),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 30,
+                      horizontal: 20,
+                    ),
                     child: Column(
                       children: [
                         // Profile Avatar
@@ -107,11 +113,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const SizedBox(height: 12),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
                           decoration: BoxDecoration(
                             color: Colors.white.withOpacity(0.2),
                             borderRadius: BorderRadius.circular(20),
-                            border: Border.all(color: Colors.white.withOpacity(0.3)),
+                            border: Border.all(
+                              color: Colors.white.withOpacity(0.3),
+                            ),
                           ),
                           child: const Text(
                             'Patient Profile',
@@ -134,9 +145,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         // Personal Information
                         Text(
                           'Personal Information',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 12),
                         _buildProfileCard(
@@ -164,9 +174,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         // Health Conditions
                         Text(
                           'Health Conditions',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: Theme.of(context).textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 12),
                         _buildHealthStatusCard(
@@ -189,6 +198,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           value: p!['smokingHistory'],
                           color: const Color(0xFF9C27B0),
                         ),
+                        const SizedBox(
+                          height: 120,
+                        ), // Padding to clear the navigation bar
                       ],
                     ),
                   ),
@@ -228,10 +240,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 2),
                 Text(
@@ -256,7 +265,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required bool hasCondition,
   }) {
     final color = hasCondition ? Colors.red : Colors.green;
-    
+
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -281,10 +290,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 2),
                 Text(

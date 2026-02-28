@@ -308,6 +308,10 @@ class _PatientSettingsScreenState extends State<PatientSettingsScreen> {
                     ),
                   ),
                 ).animate().fadeIn(delay: 800.ms).slideY(begin: 0.2),
+
+                const SizedBox(
+                  height: 120,
+                ), // Padding to clear the navigation bar
               ],
             ),
           ),

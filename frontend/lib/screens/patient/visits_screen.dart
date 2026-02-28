@@ -450,6 +450,7 @@ class _VisitsScreenState extends State<VisitsScreen> {
                   },
                 ),
         ),
+        const SizedBox(height: 120), // Padding to clear the navigation bar
       ],
     );
   }

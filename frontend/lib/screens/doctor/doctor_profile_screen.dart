@@ -138,7 +138,9 @@ class _DoctorProfileScreenState extends State<DoctorProfileScreen> {
                           _buildSettingsList(),
                           const SizedBox(height: 40),
                           _buildLogoutButton(),
-                          const SizedBox(height: 40),
+                          const SizedBox(
+                            height: 120,
+                          ), // Added padding for floating nav bar
                         ]
                         .animate(interval: 100.ms)
                         .fadeIn(duration: 500.ms)

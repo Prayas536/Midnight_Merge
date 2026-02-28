@@ -330,7 +330,9 @@ class _PredictScreenState extends State<PredictScreen> {
                       child: _buildResultCard(),
                     ).animate().fadeIn().slideY(begin: 0.1),
 
-                  const SizedBox(height: 40),
+                  const SizedBox(
+                    height: 120,
+                  ), // Padding to clear the navigation bar
                 ],
               ),
             ),

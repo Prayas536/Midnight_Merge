@@ -373,6 +373,9 @@ class _PatientDashboardState extends State<PatientDashboard> {
                   delay: 600.ms,
                   begin: const Offset(0.95, 0.95),
                 ),
+                const SizedBox(
+                  height: 120,
+                ), // Padding to clear the navigation bar
               ],
             ),
           ),

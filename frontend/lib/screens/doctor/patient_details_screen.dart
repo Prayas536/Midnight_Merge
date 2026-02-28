@@ -406,6 +406,7 @@ class _PatientDetailsScreenState extends State<PatientDetailsScreen> {
                 ).animate().fadeIn(delay: (400 + i * 100).ms).slideX(begin: -0.05);
               },
             ),
+            const SizedBox(height: 120), // Padding to clear the navigation bar
           ],
         ),
       ),
