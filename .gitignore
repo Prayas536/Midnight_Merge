@@ -2,7 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+Project_Documentation.md
 # Distribution / packaging
 .Python
 build/
