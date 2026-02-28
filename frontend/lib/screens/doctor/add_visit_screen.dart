@@ -27,7 +27,8 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
   int hypertension = 0;
   int heartDisease = 0;
   String smoking = 'never';
-  bool _loading = false;
+  bool _isGeneratingNotes = false;
+  bool _isPredictingRisk = false;
   bool _savePrediction = true;
   Map<String, dynamic>? _prediction;
   Map<String, dynamic>? _patientData;
@@ -88,35 +89,33 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
   Future<void> _generateNotes() async {
     if (!_formKey.currentState!.validate() || _patientData == null) return;
 
-    setState(() => _loading = true);
+    setState(() => _isGeneratingNotes = true);
     try {
       final res = await ApiService().dio.post(
         '/ai/generate-notes',
         data: {
-          'patientData': {
+          'patient_data': {
             ..._patientData!,
             'age': int.tryParse(_ageCtrl.text),
             'gender': gender,
-            'hypertension': hypertension,
-            'heart_disease': heartDisease,
-            'smoking_history': smoking,
           },
-          'visitData': {
-            'metrics': {
-              'bmi': double.tryParse(_bmiCtrl.text),
-              'HbA1cLevel': double.tryParse(_hba1cCtrl.text),
-              'bloodGlucoseLevel': int.tryParse(_glucoseCtrl.text),
-            },
+          'current_metrics': {
+            'bmi': double.tryParse(_bmiCtrl.text),
+            'HbA1cLevel': double.tryParse(_hba1cCtrl.text),
+            'bloodGlucoseLevel': int.tryParse(_glucoseCtrl.text),
+            'hypertension': hypertension == 1,
+            'heartDisease': heartDisease == 1,
+            'smokingHistory': smoking,
           },
-          'predictionContext': _prediction,
+          'visit_history': [],
         },
       );
       if (mounted) {
-        final data = res.data;
+        final data = res.data['data'];
         setState(() {
-          _notesCtrl.text = data['notes'] ?? '';
-          _recsCtrl.text = data['recommendations'] ?? '';
-          _loading = false;
+          _notesCtrl.text = data?['notes'] ?? '';
+          _recsCtrl.text = data?['recommendations'] ?? '';
+          _isGeneratingNotes = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Notes generated successfully!')),
@@ -124,7 +123,7 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _loading = false);
+        setState(() => _isGeneratingNotes = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Failed to generate notes')),
         );
@@ -177,7 +176,7 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
   Future<void> _predict() async {
     if (!_formKey.currentState!.validate()) return;
 
-    setState(() => _loading = true);
+    setState(() => _isPredictingRisk = true);
     _prediction = null;
     try {
       final res = await ApiService().dio.post(
@@ -197,7 +196,7 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
       if (mounted) {
         setState(() {
           _prediction = res.data['data'];
-          _loading = false;
+          _isPredictingRisk = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Prediction completed successfully!')),
@@ -205,7 +204,7 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() => _loading = false);
+        setState(() => _isPredictingRisk = false);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Prediction Failed. Please check inputs.'),
@@ -260,29 +259,39 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       appBar: AppBar(
         title: Text(
           'Add New Visit',
-          style: GoogleFonts.poppins(color: Colors.white),
+          style: GoogleFonts.outfit(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: 22,
+          ),
         ),
-        backgroundColor: const Color(0xFF1565C0),
+        backgroundColor: const Color(0xFF1E3A8A), // Deeper modern blue
         iconTheme: const IconThemeData(color: Colors.white),
+        elevation: 0,
       ),
       body: _fetchingPatient
-          ? const Center(child: CircularProgressIndicator())
+          ? const Center(
+              child: CircularProgressIndicator(color: Color(0xFF1E3A8A)),
+            )
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
               child: Form(
                 key: _formKey,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    // Visit Details Section
                     Text(
                       'Visit Details',
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                      style: GoogleFonts.outfit(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF111827),
+                        letterSpacing: -0.5,
                       ),
                     ).animate().fadeIn().slideX(begin: -0.1),
                     const SizedBox(height: 16),
@@ -330,14 +339,15 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
                       },
                     ).animate().fadeIn(delay: 50.ms),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
 
                     Text(
                       'Patient Vitals',
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                      style: GoogleFonts.outfit(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF111827),
+                        letterSpacing: -0.5,
                       ),
                     ).animate().fadeIn().slideX(begin: -0.1),
                     const SizedBox(height: 16),
@@ -437,20 +447,22 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
                       'mg/dL',
                     ).animate().fadeIn(delay: 600.ms),
 
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
                     Text(
-                      'Assessment',
-                      style: GoogleFonts.poppins(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
+                      'Assessment & AI Analysis',
+                      style: GoogleFonts.outfit(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w700,
+                        color: const Color(0xFF111827),
+                        letterSpacing: -0.5,
                       ),
                     ).animate().fadeIn(delay: 700.ms).slideX(begin: -0.1),
                     const SizedBox(height: 16),
 
                     TextField(
                       controller: _notesCtrl,
-                      maxLines: 2,
+                      maxLines: 5,
+                      minLines: 3,
                       decoration: InputDecoration(
                         labelText: 'Visit Notes',
                         prefixIcon: const Icon(
@@ -468,7 +480,8 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
 
                     TextField(
                       controller: _recsCtrl,
-                      maxLines: 2,
+                      maxLines: 5,
+                      minLines: 3,
                       decoration: InputDecoration(
                         labelText: 'Recommendations',
                         prefixIcon: const Icon(
@@ -488,27 +501,34 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
                     // Generate Notes Button
                     SizedBox(
                       width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: _loading ? null : _generateNotes,
-                        icon: _loading
+                      child: ElevatedButton.icon(
+                        onPressed: _isGeneratingNotes ? null : _generateNotes,
+                        icon: _isGeneratingNotes
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
+                                  color: Colors.white,
                                 ),
                               )
-                            : const Icon(Icons.smart_toy_rounded),
+                            : const Icon(Icons.smart_toy_rounded, size: 22),
                         label: Text(
-                          _loading
+                          _isGeneratingNotes
                               ? 'Generating Notes...'
-                              : 'Generate Notes & Recommendations (AI)',
+                              : 'Generate Notes & Recommendations',
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
                         ),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          side: const BorderSide(color: Color(0xFF4CAF50)),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          backgroundColor: const Color(0xFF10B981), // Emerald
+                          foregroundColor: Colors.white,
+                          elevation: 2,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
                       ),
@@ -519,27 +539,34 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
                     // Run Prediction Button
                     SizedBox(
                       width: double.infinity,
-                      child: OutlinedButton.icon(
-                        onPressed: _loading ? null : _predict,
-                        icon: _loading
+                      child: ElevatedButton.icon(
+                        onPressed: _isPredictingRisk ? null : _predict,
+                        icon: _isPredictingRisk
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
+                                  color: Colors.white,
                                 ),
                               )
-                            : const Icon(Icons.auto_graph_rounded),
+                            : const Icon(Icons.auto_graph_rounded, size: 22),
                         label: Text(
-                          _loading
+                          _isPredictingRisk
                               ? 'Running ML Model...'
-                              : 'Run Risk Prediction (AI)',
+                              : 'Run Risk Prediction',
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
                         ),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          side: const BorderSide(color: Color(0xFF1565C0)),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          backgroundColor: const Color(0xFF3B82F6), // Blue
+                          foregroundColor: Colors.white,
+                          elevation: 2,
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(16),
                           ),
                         ),
                       ),
@@ -551,7 +578,7 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: OutlinedButton.icon(
-                        onPressed: _loading
+                        onPressed: _isGeneratingNotes || _isPredictingRisk
                             ? null
                             : () {
                                 // Pass current form data to prediction form
@@ -565,7 +592,6 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
                                     _glucoseCtrl.text,
                                   ),
                                   'smokingHistory': smoking,
-                                  // Add others if mapped
                                 };
                                 Navigator.push(
                                   context,
@@ -576,17 +602,27 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
                                   ),
                                 );
                               },
-                        icon: const Icon(Icons.medical_services_outlined),
-                        label: const Text('Recommend Medications (AI)'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          side: const BorderSide(
-                            color: Color(0xFF9C27B0),
-                          ), // Purple
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
+                        icon: const Icon(
+                          Icons.medical_services_outlined,
+                          size: 22,
+                        ),
+                        label: Text(
+                          'Recommend Medications',
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
                           ),
-                          foregroundColor: const Color(0xFF9C27B0),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          side: const BorderSide(
+                            color: Color(0xFF8B5CF6), // Purple
+                            width: 2,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          foregroundColor: const Color(0xFF8B5CF6),
                         ),
                       ),
                     ).animate().fadeIn(delay: 950.ms),
@@ -595,17 +631,20 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
 
                     if (_prediction != null)
                       Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(24),
                         width: double.infinity,
                         decoration: BoxDecoration(
                           color: _prediction!['riskLabel'] == 'High Risk'
-                              ? Colors.red.shade50
-                              : Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: _prediction!['riskLabel'] == 'High Risk'
-                                ? Colors.red.withOpacity(0.3)
-                                : Colors.blue.withOpacity(0.3),
+                              ? const Color(0xFFFEF2F2)
+                              : const Color(0xFFEFF6FF),
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.fromBorderSide(
+                            BorderSide(
+                              color: _prediction!['riskLabel'] == 'High Risk'
+                                  ? const Color(0xFFEF4444).withOpacity(0.3)
+                                  : const Color(0xFF3B82F6).withOpacity(0.3),
+                              width: 2,
+                            ),
                           ),
                         ),
                         child: Column(
@@ -613,34 +652,106 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(
-                                  _prediction!['riskLabel'] == 'High Risk'
-                                      ? Icons.warning_rounded
-                                      : Icons.check_circle_rounded,
-                                  color:
-                                      _prediction!['riskLabel'] == 'High Risk'
-                                      ? Colors.red
-                                      : Colors.blue,
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "AI Prediction Result",
-                                  style: GoogleFonts.poppins(
-                                    fontWeight: FontWeight.bold,
+                                Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
                                     color:
                                         _prediction!['riskLabel'] == 'High Risk'
-                                        ? Colors.red[900]
-                                        : Colors.blue[900],
+                                        ? const Color(
+                                            0xFFEF4444,
+                                          ).withOpacity(0.15)
+                                        : const Color(
+                                            0xFF3B82F6,
+                                          ).withOpacity(0.15),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    _prediction!['riskLabel'] == 'High Risk'
+                                        ? Icons.warning_rounded
+                                        : Icons.health_and_safety_rounded,
+                                    color:
+                                        _prediction!['riskLabel'] == 'High Risk'
+                                        ? const Color(0xFFEF4444)
+                                        : const Color(0xFF3B82F6),
+                                    size: 32,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        "AI Prediction Analysis",
+                                        style: GoogleFonts.inter(
+                                          fontWeight: FontWeight.w600,
+                                          color:
+                                              _prediction!['riskLabel'] ==
+                                                  'High Risk'
+                                              ? const Color(
+                                                  0xFFEF4444,
+                                                ).withOpacity(0.8)
+                                              : const Color(
+                                                  0xFF3B82F6,
+                                                ).withOpacity(0.8),
+                                          fontSize: 14,
+                                          letterSpacing: 0.5,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "${_prediction!['riskLabel']}",
+                                        style: GoogleFonts.outfit(
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.w800,
+                                          color:
+                                              _prediction!['riskLabel'] ==
+                                                  'High Risk'
+                                              ? Colors.red[900]
+                                              : Colors.blue[900],
+                                          height: 1.1,
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "${_prediction!['riskLabel']} (${(_prediction!['riskScore'] * 100).toStringAsFixed(1)}%)",
-                              style: GoogleFonts.poppins(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                            const SizedBox(height: 20),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: 16,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    "Risk Probability",
+                                    style: GoogleFonts.inter(
+                                      fontWeight: FontWeight.w600,
+                                      color: Colors.grey[700],
+                                    ),
+                                  ),
+                                  Text(
+                                    "${(_prediction!['riskScore'] * 100).toStringAsFixed(1)}%",
+                                    style: GoogleFonts.inter(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w800,
+                                      color:
+                                          _prediction!['riskLabel'] ==
+                                              'High Risk'
+                                          ? const Color(0xFFEF4444)
+                                          : const Color(0xFF3B82F6),
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
@@ -669,20 +780,24 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
                     // Save Button
                     ElevatedButton.icon(
                       onPressed: _submit,
-                      icon: const Icon(Icons.save_rounded),
+                      icon: const Icon(Icons.check_circle_rounded, size: 28),
                       label: Text(
                         'Save Visit Record',
-                        style: GoogleFonts.poppins(fontWeight: FontWeight.bold),
+                        style: GoogleFonts.outfit(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1565C0),
+                        backgroundColor: const Color(0xFF1E3A8A), // Deeper blue
                         foregroundColor: Colors.white,
-                        minimumSize: const Size(double.infinity, 56),
+                        minimumSize: const Size(double.infinity, 64),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        elevation: 4,
-                        shadowColor: Colors.blue.withOpacity(0.4),
+                        elevation: 6,
+                        shadowColor: const Color(0xFF1E3A8A).withOpacity(0.5),
                       ),
                     ).animate().fadeIn(delay: 1000.ms).slideY(begin: 0.2),
 
@@ -705,30 +820,37 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
       controller: controller,
       keyboardType: TextInputType.number,
       readOnly: readOnly,
+      style: GoogleFonts.inter(fontSize: 16, fontWeight: FontWeight.w500),
       validator: (val) => val == null || val.isEmpty ? 'Required' : null,
       decoration: InputDecoration(
         labelText: label,
         suffixText: suffix,
+        labelStyle: GoogleFonts.inter(
+          color: Colors.grey[600],
+          fontWeight: FontWeight.w500,
+        ),
         prefixIcon: Icon(
           icon,
-          color: readOnly ? Colors.grey : const Color(0xFF1565C0),
-          size: 20,
+          color: readOnly ? Colors.grey[400] : const Color(0xFF3B82F6),
+          size: 22,
         ),
         filled: true,
-        fillColor: readOnly ? Colors.grey[100] : Colors.white, // Visual cue
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        fillColor: readOnly ? Colors.grey[50] : Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey[200]!, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: readOnly
-                ? Colors.grey
-                : const Color(0xFF1565C0), // Visual cue
-            width: 2,
-          ),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFF3B82F6), width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 18,
         ),
       ),
     );
@@ -747,26 +869,35 @@ class _AddVisitScreenState extends State<AddVisitScreen> {
       isExpanded: true,
       value: value,
       dropdownColor: Colors.white,
+      icon: Icon(Icons.keyboard_arrow_down_rounded, color: Colors.grey[600]),
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: GoogleFonts.inter(
+          color: Colors.grey[600],
+          fontWeight: FontWeight.w500,
+        ),
         prefixIcon: Icon(
           icon,
-          color: isReadOnly ? Colors.grey : const Color(0xFF1565C0),
-          size: 20,
+          color: isReadOnly ? Colors.grey[400] : const Color(0xFF3B82F6),
+          size: 22,
         ),
         filled: true,
-        fillColor: isReadOnly ? Colors.grey[100] : Colors.white,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+        fillColor: isReadOnly ? Colors.grey[50] : Colors.white,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide.none,
+        ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(color: Colors.grey[200]!, width: 1.5),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: isReadOnly ? Colors.grey : const Color(0xFF1565C0),
-            width: 2,
-          ),
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: Color(0xFF3B82F6), width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 20,
+          vertical: 18,
         ),
       ),
       items: List.generate(
