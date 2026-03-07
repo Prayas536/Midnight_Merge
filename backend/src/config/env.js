@@ -13,9 +13,12 @@ const env = {
   ML_PREDICT_URL: process.env.ML_PREDICT_URL,
   ML_MEDICINE_URL: process.env.ML_MEDICINE_URL,
   ML_MEDICINE_DROPDOWN_URL: process.env.ML_MEDICINE_DROPDOWN_URL,
+  ML_STRESS_URL: process.env.ML_STRESS_URL,
   ML_TIMEOUT_MS: Number(process.env.ML_TIMEOUT_MS || 8000),
   ML_RETRY_COUNT: Number(process.env.ML_RETRY_COUNT || 2),
   MODEL_VERSION: process.env.MODEL_VERSION || "v1",
+  SAMBANOVA_API_KEY: process.env.SAMBANOVA_API_KEY,
+  GROQ_API_KEY: process.env.GROQ_API_KEY,
 };
 
 module.exports = { env };
