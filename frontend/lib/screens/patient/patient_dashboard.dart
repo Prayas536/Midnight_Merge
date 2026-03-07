@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../services/api_service.dart';
 import 'patient_my_health_trends_screen.dart';
 import 'widgets/last_visit_modal.dart';
+import 'patient_stress_predict_screen.dart';
 
 class PatientDashboard extends StatefulWidget {
   final VoidCallback? onSeeAllVisits;
@@ -359,9 +360,9 @@ class _PatientDashboardState extends State<PatientDashboard> {
                       children: [
                         const Icon(Icons.show_chart_rounded),
                         const SizedBox(width: 10),
-                        Text(
+                        const Text(
                           'View My Health Trends',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
                           ),
@@ -373,6 +374,59 @@ class _PatientDashboardState extends State<PatientDashboard> {
                   delay: 600.ms,
                   begin: const Offset(0.95, 0.95),
                 ),
+
+                const SizedBox(height: 16),
+
+                // Stress Level Prediction Button
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF1976D2).withOpacity(0.3),
+                        blurRadius: 12,
+                        offset: const Offset(0, 5),
+                      ),
+                    ],
+                  ),
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const PatientStressPredictScreen(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1976D2),
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 56),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.psychology_outlined),
+                        const SizedBox(width: 10),
+                        const Text(
+                          'Predict Stress Level',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ).animate().scale(
+                  delay: 700.ms,
+                  begin: const Offset(0.95, 0.95),
+                ),
+
                 const SizedBox(
                   height: 120,
                 ), // Padding to clear the navigation bar

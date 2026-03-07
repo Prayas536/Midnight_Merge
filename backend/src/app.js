@@ -15,7 +15,7 @@ const predictionRoutes = require("./routes/prediction.routes");
 const aiRoutes = require("./routes/aiRoutes.js");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const medicineRoutes = require("./routes/medicine.routes");
-
+const stressRoutes = require("./routes/stress.routes");
 
 const app = express();
 
@@ -39,6 +39,12 @@ logger(app);
 // Health
 app.get("/api/health", (req, res) => res.json({ success: true, data: { ok: true } }));
 
+// DEBUG LOGGER
+app.use((req, res, next) => {
+  console.log(`[DEBUG] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/patients", patientRoutes);
@@ -47,6 +53,8 @@ app.use("/api/predictions", predictionRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/medications", medicineRoutes);
+app.use("/api/stress", stressRoutes);
+app.use("/api/predict_stress", stressRoutes);
 
 // 404 + error handler
 app.use(notFound);
