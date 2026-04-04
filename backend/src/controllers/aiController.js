@@ -1,15 +1,27 @@
 const axios = require("axios");
 const { env } = require("../config/env");
+const graphService = require("../services/graphService");
 
 const chatWithAI = async (req, res) => {
   try {
-    const { userMessage, predictionContext, chatHistory } = req.body;
+    const { userMessage, predictionContext, chatHistory, patientPid } = req.body;
 
     if (!userMessage || !predictionContext) {
       return res.status(400).json({
         success: false,
         message: "Missing required fields: userMessage or predictionContext"
       });
+    }
+
+    // ── Graph RAG: fetch patient's graph context ──
+    let graphContext = null;
+    if (patientPid && graphService.isGraphAvailable()) {
+      try {
+        graphContext = await graphService.getPatientGraphContext(patientPid);
+        console.log("📊 Graph RAG context loaded for:", patientPid);
+      } catch (graphErr) {
+        console.warn("⚠️  Graph context unavailable:", graphErr.message);
+      }
     }
 
     // Use environment variable or default to localhost
@@ -20,13 +32,23 @@ const chatWithAI = async (req, res) => {
     console.log("  User Message:", userMessage);
     console.log("  Prediction Context Risk:", predictionContext.risk_percent);
     console.log("  Chat History Length:", chatHistory?.length || 0);
+    console.log("  Graph Context:", graphContext ? "✅ loaded" : "⏭️ skipped");
 
     const response = await axios.post(
       `${mlServiceUrl}/ai/chat`,
       {
         user_message: userMessage,
         prediction_context: predictionContext,
-        chat_history: chatHistory || []
+        chat_history: chatHistory || [],
+        // ── Inject graph context into LLM payload ──
+        graph_context: graphContext ? {
+          family_members: graphContext.find(r => r.family_members)?.family_members || [],
+          conditions: graphContext.find(r => r.conditions)?.conditions || [],
+          medications: graphContext.find(r => r.medications)?.medications || [],
+          lab_history: graphContext.find(r => r.lab_history)?.lab_history || [],
+          current_risk_score: graphContext.find(r => r.current_risk_score !== undefined)?.current_risk_score,
+          current_risk_label: graphContext.find(r => r.current_risk_label !== undefined)?.current_risk_label,
+        } : null,
       },
       {
         timeout: 30000  // Increased timeout

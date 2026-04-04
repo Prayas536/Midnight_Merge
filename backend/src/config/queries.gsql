@@ -1,0 +1,169 @@
+/*
+ * TigerGraph Installed Queries for NexusHealth
+ * ─────────────────────────────────────────────
+ * Install these queries in GraphStudio or via GSQL CLI
+ * They are called from the Node.js backend via REST++
+ */
+
+// ─── 1. Hereditary Risk Traversal ───────────────────────────────────
+// Walks up to 3 hops through HAS_RELATIVE edges collecting family members'
+// conditions and risk scores. Returns an aggregated hereditary risk profile.
+CREATE QUERY getHereditaryRisk(VERTEX<Patient> seed) FOR GRAPH NexusHealthGraph
+  RETURNS (STRING) {
+  
+  SetAccum<STRING> @@family_conditions;
+  SumAccum<DOUBLE> @@total_risk;
+  SumAccum<INT> @@family_count;
+  ListAccum<TUPLE<STRING name, STRING relation, DOUBLE risk_score, STRING risk_label>> @@family_risks;
+  
+  Seed = {seed};
+  
+  // 1-hop relatives (parents, siblings, children)
+  Hop1 = SELECT t FROM Seed:s -(HAS_RELATIVE:e)-> Patient:t
+    ACCUM
+      @@family_count += 1,
+      @@total_risk += t.risk_score,
+      @@family_risks += TUPLE(t.name, e.relation, t.risk_score, t.risk_label);
+  
+  // 2-hop relatives (grandparents, uncles/aunts, cousins)
+  Hop2 = SELECT t FROM Hop1:s -(HAS_RELATIVE:e)-> Patient:t
+    WHERE t != seed
+    ACCUM
+      @@family_count += 1,
+      @@total_risk += t.risk_score * 0.5,  // discount distant relatives
+      @@family_risks += TUPLE(t.name, "extended-" + e.relation, t.risk_score, t.risk_label);
+  
+  // Collect conditions across all relatives
+  AllFamily = Hop1 UNION Hop2;
+  FamilyConds = SELECT c FROM AllFamily:p -(HAS_CONDITION)-> Condition:c
+    ACCUM @@family_conditions += c.name;
+
+  DOUBLE avg_risk = 0;
+  IF @@family_count > 0 THEN
+    avg_risk = @@total_risk / @@family_count;
+  END;
+
+  PRINT @@family_risks AS family_members;
+  PRINT @@family_conditions AS hereditary_conditions;
+  PRINT avg_risk AS avg_family_risk;
+  PRINT @@family_count AS relatives_analyzed;
+}
+
+// ─── 2. Drug-Drug Interaction Check ─────────────────────────────────
+// Given a candidate medicine and a patient, checks:
+//   (a) Does the medicine interact with any drug the patient currently takes?
+//   (b) Is the medicine contraindicated for any of the patient's conditions?
+CREATE QUERY checkDrugSafety(VERTEX<Patient> patient, VERTEX<Medicine> candidate) FOR GRAPH NexusHealthGraph
+  RETURNS (STRING) {
+  
+  ListAccum<TUPLE<STRING drug, STRING severity, STRING description>> @@interactions;
+  ListAccum<TUPLE<STRING condition, STRING reason>> @@contraindications;
+  BOOL @@is_safe = TRUE;
+  
+  PatientSet = {patient};
+  CandidateSet = {candidate};
+  
+  // Check interactions with current medications
+  CurrentMeds = SELECT m FROM PatientSet:p -(TAKES:e)-> Medicine:m
+    WHERE e.is_current == TRUE;
+  
+  Interactions = SELECT target FROM CandidateSet:c -(INTERACTS_WITH:e)-> Medicine:target
+    WHERE target IN CurrentMeds
+    ACCUM
+      @@interactions += TUPLE(target.name, e.severity, e.description),
+      @@is_safe = FALSE;
+  
+  // Check contraindications against patient's conditions
+  PatientConditions = SELECT c FROM PatientSet:p -(HAS_CONDITION:e)-> Condition:c
+    WHERE e.is_active == TRUE;
+  
+  Contras = SELECT c FROM CandidateSet:m -(CONTRAINDICATED:e)-> Condition:c
+    WHERE c IN PatientConditions
+    ACCUM
+      @@contraindications += TUPLE(c.name, e.reason),
+      @@is_safe = FALSE;
+
+  PRINT @@is_safe AS safe;
+  PRINT @@interactions AS drug_interactions;
+  PRINT @@contraindications AS contraindications;
+  PRINT candidate.name AS candidate_medicine;
+}
+
+// ─── 3. Find Similar Patients (Community Detection) ─────────────────
+// Finds patients with similar conditions, risk profile, and lab trends.
+// Uses shared conditions + similar risk_score (±0.15 tolerance).
+CREATE QUERY findSimilarPatients(VERTEX<Patient> seed, INT topK = 5) FOR GRAPH NexusHealthGraph
+  RETURNS (STRING) {
+  
+  MapAccum<VERTEX<Patient>, SumAccum<DOUBLE>> @@similarity;
+  SetAccum<STRING> @@seed_conditions;
+  
+  SeedSet = {seed};
+  
+  // Collect seed patient's conditions
+  SeedConds = SELECT c FROM SeedSet:p -(HAS_CONDITION)-> Condition:c
+    ACCUM @@seed_conditions += c.name;
+  
+  // Find patients sharing at least one condition
+  SharedCondPatients = SELECT p FROM SeedConds:c <(HAS_CONDITION)- Patient:p
+    WHERE p != seed
+    ACCUM @@similarity += (p -> 1.0);  // +1 per shared condition
+  
+  // Bonus for similar risk_score
+  CandidateSet = {@@similarity.keySet()};
+  SimilarRisk = SELECT p FROM CandidateSet:p
+    WHERE abs(p.risk_score - seed.risk_score) < 0.15
+    ACCUM @@similarity += (p -> 2.0);  // +2 for close risk score
+  
+  // Sort and return top K
+  ListAccum<TUPLE<STRING pid, STRING name, DOUBLE risk_score, STRING risk_label, DOUBLE similarity_score>> @@results;
+  
+  TopPatients = SELECT p FROM CandidateSet:p
+    ORDER BY @@similarity.get(p) DESC
+    LIMIT topK
+    ACCUM @@results += TUPLE(p.pid, p.name, p.risk_score, p.risk_label, @@similarity.get(p));
+    
+  PRINT @@results AS similar_patients;
+  PRINT @@seed_conditions AS reference_conditions;
+}
+
+// ─── 4. Patient 360° Graph Context (for Graph RAG) ──────────────────
+// Retrieves the full graph neighbourhood of a patient in one call.
+// Used to inject into the LLM prompt for contextual answers.
+CREATE QUERY getPatientGraphContext(VERTEX<Patient> seed) FOR GRAPH NexusHealthGraph
+  RETURNS (STRING) {
+  
+  ListAccum<TUPLE<STRING name, STRING relation, DOUBLE risk_score, STRING risk_label>> @@relatives;
+  ListAccum<TUPLE<STRING condition_name, STRING severity, BOOL is_active>> @@conditions;
+  ListAccum<TUPLE<STRING medicine_name, DOUBLE dosage_mg, BOOL is_current>> @@medications;
+  ListAccum<TUPLE<STRING test_date, DOUBLE hba1c, DOUBLE glucose, DOUBLE bmi>> @@lab_history;
+  
+  SeedSet = {seed};
+  
+  // Family
+  Fam = SELECT t FROM SeedSet:s -(HAS_RELATIVE:e)-> Patient:t
+    ACCUM @@relatives += TUPLE(t.name, e.relation, t.risk_score, t.risk_label);
+  
+  // Conditions
+  Conds = SELECT c FROM SeedSet:s -(HAS_CONDITION:e)-> Condition:c
+    ACCUM @@conditions += TUPLE(c.name, c.severity, e.is_active);
+  
+  // Medications
+  Meds = SELECT m FROM SeedSet:s -(TAKES:e)-> Medicine:m
+    ACCUM @@medications += TUPLE(m.name, e.dosage_mg, e.is_current);
+  
+  // Lab history
+  Labs = SELECT l FROM SeedSet:s -(HAS_LAB_RESULT)-> LabResult:l
+    ORDER BY l.test_date DESC
+    LIMIT 20
+    ACCUM @@lab_history += TUPLE(to_string(l.test_date), l.hba1c, l.glucose, l.bmi);
+
+  PRINT seed.pid AS patient_id;
+  PRINT seed.name AS patient_name;
+  PRINT seed.risk_score AS current_risk_score;
+  PRINT seed.risk_label AS current_risk_label;
+  PRINT @@relatives AS family_members;
+  PRINT @@conditions AS conditions;
+  PRINT @@medications AS medications;
+  PRINT @@lab_history AS lab_history;
+}

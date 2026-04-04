@@ -15,6 +15,7 @@ const predictionRoutes = require("./routes/prediction.routes");
 const aiRoutes = require("./routes/aiRoutes.js");
 const dashboardRoutes = require("./routes/dashboard.routes");
 const medicineRoutes = require("./routes/medicine.routes");
+const graphRoutes = require("./routes/graph.routes");
 
 
 const app = express();
@@ -47,6 +48,7 @@ app.use("/api/predictions", predictionRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/medicine", medicineRoutes);
+app.use("/api/graph", graphRoutes);
 
 // 404 + error handler
 app.use(notFound);

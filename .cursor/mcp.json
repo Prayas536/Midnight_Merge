@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "tigergraph-nexus": {
+      "command": "node",
+      "args": ["c:/Users/praya/OneDrive/Desktop/Midnight_Merge/backend/mcp-server/index.js"],
+      "env": {
+        "TG_HOST": "https://tg-008119db-a7fe-47e2-b707-98d7365142dc.tg-2635877100.i.tgcloud.io",
+        "TG_GRAPH_NAME": "NexusHealthGraph",
+        "TG_SECRET": "hrctcpmvckkr3n9cmeg06lop0tu4k32b"
+      }
+    }
+  }
+}

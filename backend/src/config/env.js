@@ -16,6 +16,12 @@ const env = {
   ML_TIMEOUT_MS: Number(process.env.ML_TIMEOUT_MS || 8000),
   ML_RETRY_COUNT: Number(process.env.ML_RETRY_COUNT || 2),
   MODEL_VERSION: process.env.MODEL_VERSION || "v1",
+
+  // TigerGraph
+  TG_HOST: process.env.TG_HOST,                                     // e.g. https://xyz.i.tgcloud.io:9000
+  TG_TOKEN: process.env.TG_TOKEN,                                   // REST++ bearer token
+  TG_GRAPH_NAME: process.env.TG_GRAPH_NAME || "NexusHealthGraph",
+  TG_TIMEOUT_MS: Number(process.env.TG_TIMEOUT_MS || 10000),
 };
 
 module.exports = { env };

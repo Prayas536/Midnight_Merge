@@ -1,0 +1,86 @@
+/*
+ * TigerGraph GSQL Schema for NexusHealth
+ * ────────────────────────────────────────
+ * Run this in GraphStudio or via GSQL CLI against your TG instance
+ * to create the graph "NexusHealthGraph".
+ *
+ * Vertices
+ *   Patient        – mirrors MongoDB patient record
+ *   Doctor         – mirrors MongoDB doctor / user record
+ *   Medicine       – drug catalog node
+ *   Condition      – medical condition node (e.g., Hypertension)
+ *   LabResult      – a single lab-measurement snapshot
+ *
+ * Edges
+ *   TREATS            (Doctor  → Patient)
+ *   HAS_RELATIVE      (Patient → Patient)     – family links
+ *   HAS_CONDITION     (Patient → Condition)
+ *   PRESCRIBED        (Doctor  → Medicine)     – via a patient visit
+ *   TAKES             (Patient → Medicine)
+ *   INTERACTS_WITH    (Medicine ↔ Medicine)    – drug-drug interaction
+ *   CONTRAINDICATED   (Medicine → Condition)   – don't use if patient has this
+ *   HAS_LAB_RESULT    (Patient → LabResult)
+ */
+
+// ──── Create vertex types ────
+CREATE VERTEX Patient (
+  PRIMARY_ID pid STRING,
+  name       STRING,
+  age        INT,
+  gender     STRING,
+  bmi        DOUBLE,
+  hba1c      DOUBLE,
+  glucose    DOUBLE,
+  hypertension  BOOL,
+  heart_disease BOOL,
+  smoking    STRING,
+  risk_label STRING,
+  risk_score DOUBLE,
+  mongo_id   STRING       // link back to MongoDB _id
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX Doctor (
+  PRIMARY_ID did STRING,
+  name       STRING,
+  email      STRING,
+  mongo_id   STRING
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX Medicine (
+  PRIMARY_ID mid STRING,
+  name       STRING,
+  category   STRING,
+  typical_dosage_mg DOUBLE
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX Condition (
+  PRIMARY_ID cid STRING,
+  name       STRING,
+  severity   STRING       // Low, Medium, High
+) WITH primary_id_as_attribute="true"
+
+CREATE VERTEX LabResult (
+  PRIMARY_ID lid STRING,
+  test_date  DATETIME,
+  hba1c      DOUBLE,
+  glucose    DOUBLE,
+  bmi        DOUBLE,
+  visit_mongo_id STRING
+) WITH primary_id_as_attribute="true"
+
+// ──── Create edge types ────
+CREATE DIRECTED EDGE TREATS        (FROM Doctor  TO Patient,   since DATETIME)
+CREATE DIRECTED EDGE HAS_RELATIVE  (FROM Patient TO Patient,   relation STRING)  // parent, sibling, child
+CREATE DIRECTED EDGE HAS_CONDITION (FROM Patient TO Condition,  diagnosed_at DATETIME, is_active BOOL)
+CREATE DIRECTED EDGE PRESCRIBED    (FROM Doctor  TO Medicine,   for_patient STRING, prescribed_at DATETIME, dosage_mg DOUBLE)
+CREATE DIRECTED EDGE TAKES         (FROM Patient TO Medicine,   start_date DATETIME, dosage_mg DOUBLE, is_current BOOL)
+CREATE DIRECTED EDGE INTERACTS_WITH(FROM Medicine TO Medicine,  severity STRING, description STRING)
+CREATE DIRECTED EDGE CONTRAINDICATED(FROM Medicine TO Condition, reason STRING)
+CREATE DIRECTED EDGE HAS_LAB_RESULT(FROM Patient TO LabResult)
+
+// ──── Create the graph ────
+CREATE GRAPH NexusHealthGraph (
+  Patient, Doctor, Medicine, Condition, LabResult,
+  TREATS, HAS_RELATIVE, HAS_CONDITION, PRESCRIBED,
+  TAKES, INTERACTS_WITH, CONTRAINDICATED, HAS_LAB_RESULT
+)

@@ -1,0 +1,15 @@
+{
+  "name": "tigergraph-mcp-server",
+  "version": "1.0.0",
+  "description": "MCP Server for TigerGraph integration",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^0.6.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.4.0"
+  }
+}
